@@ -7,6 +7,10 @@ uniform float depthBrightness;
 uniform float depthGamma;
 uniform int invertDepth;
 
+uniform float nearClip;
+uniform float farClip;
+uniform int useLogDepth;
+
 in float viewZ;
 out vec4 fragColor;
 

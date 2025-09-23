@@ -69,7 +69,7 @@ void ofApp::drawGui() {
 	gui.draw();
 
 	ofSetColor(128);
-	int infoY = ofGetHeight() - 20 * 2;
+	int infoY = ofGetHeight() - 20 * 3;
 	ofDrawBitmapString("SPACE: Toggle Depth/Color | S: Save | G: Hide GUI | R: Reset", 20, infoY);
 	ofDrawBitmapString("Current: " + string(dm.enableDepthMap ? "DEPTH MAP" : "COLOR") + " | FPS: " + ofToString(ofGetFrameRate(), 1), 20, infoY + 20);
 

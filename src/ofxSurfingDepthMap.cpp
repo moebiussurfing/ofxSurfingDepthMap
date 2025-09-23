@@ -29,12 +29,20 @@ void ofxSurfingDepthMap::setup(ofCamera * cam) {
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::setupParams() {
 	params.setName("DepthMap");
-	params.add(enableDepthMap.set("Enable DepthMap", false));
-	params.add(depthContrast.set("Depth Contrast", 1.0, 0.1, 3.0));
-	params.add(depthBrightness.set("Depth Brightness", 0.0, -0.5, 0.5));
-	params.add(depthGamma.set("Depth Gamma", 1.0, 0.5, 2.5));
-	params.add(invertDepth.set("Invert Depth", false));
-	params.add(resetDepthMapButton.set("Reset DepthMap"));
+	params.add(enableDepthMap.set("Enable", false));
+	params.add(depthContrast.set("Contrast", 1.0, 0.1, 3.0));
+	params.add(depthBrightness.set("Brightness", 0.0, -0.5, 0.5));
+	params.add(depthGamma.set("Gamma", 1.0, 0.5, 2.5));
+	params.add(invertDepth.set("Invert", false));
+	params.add(resetDepthMapButton.set("Reset"));
+
+	camParams.setName("Camera");
+	camParams.add(useCameraClipPlanes.set("Use Camera", true));
+	camParams.add(manualNear.set("Manual Near", 0.1f, 0.01f, 10.0f));
+	camParams.add(manualFar.set("Manual Far", 2000.0f, 10.0f, 10000.0f));
+	camParams.add(useLogDepth.set("Log Depth", false));
+
+	params.add(camParams);
 
 	resetDepthMapButtonListener = resetDepthMapButton.newListener([this](const void * sender) {
 		reset();
@@ -46,7 +54,7 @@ void ofxSurfingDepthMap::setupFbo() {
 	ofFboSettings s;
 	s.width = width;
 	s.height = height;
-	s.internalformat = GL_RGBA;//ready for comfyui
+	s.internalformat = GL_RGBA;// RGB 8 bits ready for comfyui
 	//s.internalformat = GL_R32F;
 	s.useDepth = true; // we want depth testing in the scene
 	s.useStencil = false;
@@ -90,6 +98,15 @@ void ofxSurfingDepthMap::begin() {
 		shader.setUniform1f("depthBrightness", depthBrightness);
 		shader.setUniform1f("depthGamma", depthGamma);
 		shader.setUniform1i("invertDepth", invertDepth ? 1 : 0);
+		shader.setUniform1i("useLogDepth", useLogDepth ? 1 : 0);
+
+		if (useCameraClipPlanes) {
+			shader.setUniform1f("nearClip", camera->getNearClip());
+			shader.setUniform1f("farClip", camera->getFarClip());
+		} else {
+			shader.setUniform1f("nearClip", manualNear);
+			shader.setUniform1f("farClip", manualFar);
+		}
 	}
 }
 

@@ -29,6 +29,12 @@ public:
 	ofParameter<void> resetDepthMapButton;
 	ofParameter<bool> enableDepthMap;
 
+	ofParameter<bool> useCameraClipPlanes;
+	ofParameter<float> manualNear;
+	ofParameter<float> manualFar;
+	ofParameterGroup camParams;
+	ofParameter<bool> useLogDepth;
+
 private:
 	ofEventListener resetDepthMapButtonListener;
 
