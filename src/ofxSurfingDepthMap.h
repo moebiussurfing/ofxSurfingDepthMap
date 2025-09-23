@@ -28,12 +28,14 @@ public:
 	ofParameter<bool> invertDepth;
 	ofParameter<void> resetDepthMapButton;
 	ofParameter<bool> enableDepthMap;
+	ofParameter<bool> useLogDepth;
 
 	ofParameter<bool> useCameraClipPlanes;
 	ofParameter<float> manualNear;
 	ofParameter<float> manualFar;
 	ofParameterGroup camParams;
-	ofParameter<bool> useLogDepth;
+
+	int width, height;
 
 private:
 	ofEventListener resetDepthMapButtonListener;
@@ -43,7 +45,6 @@ private:
 	ofFbo fbo; // single FBO
 	ofShader shader; // external file shader
 	ofCamera * camera; // pointer to camera
-	int width, height;
 
 	void setupParams();
 };

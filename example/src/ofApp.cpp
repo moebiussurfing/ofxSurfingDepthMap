@@ -31,7 +31,7 @@ void ofApp::setupGui() {
 	paramsCube.setName("Cube Scene");
 	paramsCube.add(cubeSize.set("Size", 200, 50, 500));
 	paramsCube.add(cubeAnim.set("Anim", true));
-	paramsCube.add(vReset, "Reset");
+	paramsCube.add(vReset.set("Reset"));
 
 	gui.setup("Example");
 	gui.add(paramsCube);
@@ -82,13 +82,13 @@ void ofApp::drawGui() {
 void ofApp::resetScene() {
 	cubeSize = 200;
 
-	camera.setupPerspective();
 	camera.setDistance(800);
+	camera.setupPerspective();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-	ofClear(0);
+	ofClear(48);
 
 	// Start recording into the addon's FBO. The addon will bind the depth shader
 	// only if enableDepthMap is true.
@@ -101,7 +101,8 @@ void ofApp::draw() {
 
 	dm.end();
 
-	dm.draw(0, 0, ofGetWidth(), ofGetHeight());
+	//dm.draw(0, 0, ofGetWidth(), ofGetHeight());
+	dm.draw(ofGetWidth() / 2 - dm.width / 2, ofGetHeight() / 2 - dm.height / 2, dm.width, dm.height);
 
 	if (bGui) drawGui();
 }
