@@ -1,6 +1,7 @@
+//depth.frag
+
 #version 330
-uniform float nearPlane;
-uniform float farPlane;
+
 uniform float depthContrast;
 uniform float depthBrightness;
 uniform float depthGamma;
@@ -8,9 +9,9 @@ uniform int invertDepth;
 uniform float nearClip;
 uniform float farClip;
 uniform int depthMode; // 0=Linear, 1=Log, 2=FocusRange
+uniform float logCurvePower;
 uniform float focusNear;
 uniform float focusFar;
-uniform float focusRange;
 in float viewZ;
 out vec4 fragColor;
 
@@ -29,7 +30,8 @@ void main(){
         
     } else if (depthMode == 1) {
         // LOG MODE - Logarithmic depth for better perspective distribution
-        float c = 0.1; // Log curve factor
+        //float c = 0.1; // Log curve factor
+		float c = logCurvePower;
         // FIXED: First normalize with inverted depth, then apply log
         float linearDepth = (far - viewZ) / (far - near);
         linearDepth = clamp(linearDepth, 0.0, 1.0);

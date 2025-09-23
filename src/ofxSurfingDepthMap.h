@@ -39,6 +39,7 @@ public:
 	ofParameter<int> depthMode; // 0=Linear, 1=Log, 2=FocusRange
 	ofParameter<string> depthModeName;
 	vector<string> depthModeNames;
+	ofParameter<float> logCurvePower;
 	ofParameter<void> vResetMode;
 
 	// Camera parameters
@@ -52,7 +53,6 @@ public:
 	ofParameterGroup paramsFocus;
 	ofParameter<float> focusNear;
 	ofParameter<float> focusFar;
-	ofParameter<float> focusRange;
 	ofParameter<void> vAutoFocus;
 	ofParameter<void> vResetFocus;
 

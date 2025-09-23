@@ -11,7 +11,7 @@ public:
 	void update();
 	void draw();
 	void drawGui();
-	void resetScene();
+	void doResetScene();
 	void keyPressed(int key);
 
 private:
@@ -22,6 +22,7 @@ private:
 	ofParameterGroup paramsCube;
 	ofParameter<float> cubeSize;
 	ofParameter<bool> cubeAnim;
+
 	ofParameter<void> vReset;
 	ofEventListener vResetListener;
 
@@ -33,7 +34,7 @@ private:
 	ofParameter<bool> bGui;
 	void setupGui();
 
-	void renderScene();
+	void drawScene();
 
 	ofxSurfingDepthMap dm;
 };

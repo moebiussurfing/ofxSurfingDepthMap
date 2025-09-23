@@ -13,7 +13,7 @@ void ofApp::setup() {
 	time = 0.0f;
 	bGui.set("Gui", true);
 
-	resetScene();
+	doResetScene();
 
 	dm.setup(&camera);
 
@@ -22,13 +22,13 @@ void ofApp::setup() {
 	ofEnableDepthTest();
 
 	vResetListener = vReset.newListener([this](const void * sender) {
-		resetScene();
+		doResetScene();
 	});
 }
 
 //--------------------------------------------------------------
 void ofApp::setupGui() {
-	paramsCube.setName("Cube Scene");
+	paramsCube.setName("3D Scene");
 	paramsCube.add(cubeSize.set("Size", 200, 50, 500));
 	paramsCube.add(cubeAnim.set("Anim", false));
 	paramsCube.add(vReset.set("Reset"));
@@ -37,19 +37,20 @@ void ofApp::setupGui() {
 	gui.add(paramsCube);
 	gui.add(dm.params);
 
-	//gui.getGroup(paramsCube.getName())
+	//gui.getGroup(paramsCube.getName()).minimize();
+	gui.minimizeAll();
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
 	time += ofGetLastFrameTime();
-	oscillation = sin(time) * 100.0f;
+	oscillation = sin(time) * 50.0f;
 
 	dm.update();
 }
 
 //--------------------------------------------------------------
-void ofApp::renderScene() {
+void ofApp::drawScene() {
 	ofPushMatrix();
 
 	if (cubeAnim) {
@@ -60,8 +61,19 @@ void ofApp::renderScene() {
 
 	ofFill();
 	ofSetColor(ofColor::darkBlue);
-	ofDrawBox(0, 0, 0, cubeSize);
+	{
+		ofPushMatrix();
+		ofRotateYDeg(45);			
+		ofDrawBox(0, 0, 0, cubeSize);
+		ofPopMatrix();
 
+		float o = cubeSize * 0.75f;
+		ofDrawBox(0 - o, 0, 0 - o, cubeSize);
+		ofDrawBox(0 + o, 0, 0 - o, cubeSize);
+
+		float sz = cubeSize * 0.5f;
+		ofDrawCone(0, 0 - cubeSize, 0 - o, sz * 1.25, cubeSize);
+	}
 	ofPopMatrix();
 }
 
@@ -82,12 +94,12 @@ void ofApp::drawGui() {
 }
 
 //--------------------------------------------------------------
-void ofApp::resetScene() {
+void ofApp::doResetScene() {
 	cubeSize = 200;
 
 	camera.setDistance(800);
 	camera.setupPerspective();
-	camera.lookAt(glm::vec3(0,0,0));
+	camera.lookAt(glm::vec3(0, 0, 0));
 }
 
 //--------------------------------------------------------------
@@ -100,7 +112,7 @@ void ofApp::draw() {
 
 	// The app still controls when the camera begins/ends.
 	camera.begin();
-	renderScene();
+	drawScene();
 	camera.end();
 
 	dm.end();
@@ -127,7 +139,7 @@ void ofApp::keyPressed(int key) {
 		ofToggleFullscreen();
 		break;
 	case 'r':
-		resetScene();
+		doResetScene();
 		dm.doResetAll();
 		break;
 	}
