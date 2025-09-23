@@ -29,9 +29,9 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::setupGui() {
 	paramsCube.setName("Cube Scene");
-	paramsCube.add(cubeSize.set("Cube Size", 200, 50, 500));
-	paramsCube.add(cubeAnim.set("Cube Anim", true));
-	paramsCube.add(vReset);
+	paramsCube.add(cubeSize.set("Size", 200, 50, 500));
+	paramsCube.add(cubeAnim.set("Anim", true));
+	paramsCube.add(vReset, "Reset");
 
 	gui.setup("Example");
 	gui.add(paramsCube);

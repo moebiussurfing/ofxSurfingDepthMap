@@ -1,3 +1,4 @@
+//depth.frag
 #version 330
 
 uniform float nearPlane;

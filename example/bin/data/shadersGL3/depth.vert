@@ -1,3 +1,4 @@
+//depth.vert
 #version 330
 
 uniform mat4 modelViewProjectionMatrix;
