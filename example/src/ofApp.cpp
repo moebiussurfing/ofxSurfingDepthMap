@@ -30,13 +30,16 @@ void ofApp::setup() {
 void ofApp::setupGui() {
 	paramsCube.setName("Cube Scene");
 	paramsCube.add(cubeSize.set("Size", 200, 50, 500));
-	paramsCube.add(cubeAnim.set("Anim", true));
+	paramsCube.add(cubeAnim.set("Anim", false));
 	paramsCube.add(vReset.set("Reset"));
 
 	gui.setup("Example");
 	gui.add(paramsCube);
 	gui.add(dm.params);
+
+	//gui.getGroup(paramsCube.getName())
 }
+
 //--------------------------------------------------------------
 void ofApp::update() {
 	time += ofGetLastFrameTime();
@@ -84,6 +87,7 @@ void ofApp::resetScene() {
 
 	camera.setDistance(800);
 	camera.setupPerspective();
+	camera.lookAt(glm::vec3(0,0,0));
 }
 
 //--------------------------------------------------------------
@@ -124,7 +128,7 @@ void ofApp::keyPressed(int key) {
 		break;
 	case 'r':
 		resetScene();
-		dm.reset();
+		dm.doResetAll();
 		break;
 	}
 }
