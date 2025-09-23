@@ -1,47 +1,43 @@
+//ofxSurfingDepthMap.h
 #pragma once
 
 #include "ofMain.h"
 
-class ofxSurfingDepthMap : public ofBaseApp {
+class ofxSurfingDepthMap {
 public:
-	void setup();
-	void update();
-	void draw();
+	ofxSurfingDepthMap();
+	~ofxSurfingDepthMap();
 
-	ofParameterGroup paramsDepthMap;
+	void setup(ofCamera* cam);
+	void update();
+	void draw(float x = 0, float y = 0, float w = -1, float h = -1);
+	void begin();
+	void end();
+	void save(const std::string & filename = "");
+	void reset();
+
+private:
+	void setupFbo();
+	void setupShader();
+
+public:
+	ofParameterGroup params;
 	ofParameter<float> depthContrast;
 	ofParameter<float> depthBrightness;
 	ofParameter<float> depthGamma;
 	ofParameter<bool> invertDepth;
 	ofParameter<void> resetDepthMapButton;
+	ofParameter<bool> enableDepthMap;
 
-	void reset();
-
+private:
 	ofEventListener resetDepthMapButtonListener;
-	ofParameter<float> nearPlane;
-	ofParameter<float> farPlane;
+
 
 private:
-	void setupFBOs();
-	void setupShaders();
-
-public:
-	// Toggle between normal and depth view
-	bool showDepthMap;
-
-	void begin(ofCamera &cam);
-	void end(ofCamera & cam);
-	void save();
-
-private:
-	ofFbo depthFbo;
-	ofFbo colorFbo;
-
-	ofShader depthShader;
-
+	ofFbo fbo; // single FBO
+	ofShader shader; // external file shader
+	ofCamera * camera; // pointer to camera
 	int width, height;
 
-	bool hideGui;
 	void setupParams();
-
 };

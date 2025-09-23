@@ -1,50 +1,46 @@
+//ofApp.cpp
 #include "ofApp.h"
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-	width = 1024;
-	height = 1024;
+	width = 1280;
+	height = width * (9 / 16.f);
 	ofSetWindowShape(width, height);
 	int pad = 50;
 	ofSetWindowPosition(-width - pad, pad);
 
 	oscillation = 0.0f;
 	time = 0.0f;
-	hideGui = false;
+	bGui.set("Gui", true);
 
-	dm.setup();
+	resetScene();
+
+	dm.setup(&camera);
 
 	setupGui();
 
-	cam.setDistance(800);
-	cam.setNearClip(nearPlane);
-	cam.setFarClip(farPlane);
-
-	ofSetBackgroundAuto(false);
-
 	ofEnableDepthTest();
+
+	vResetListener = vReset.newListener([this](const void * sender) {
+		resetScene();
+	});
 }
 
 //--------------------------------------------------------------
 void ofApp::setupGui() {
-	paramsCube.setName("Cube");
+	paramsCube.setName("Cube Scene");
 	paramsCube.add(cubeSize.set("Cube Size", 200, 50, 500));
 	paramsCube.add(cubeAnim.set("Cube Anim", true));
+	paramsCube.add(vReset);
 
-	paramsCube.add(nearPlane.set("Near Plane", 100, 10, 500));
-	paramsCube.add(farPlane.set("Far Plane", 2000, 500, 5000));
-
-	gui.setup("Depth Map Controls");
+	gui.setup("Example");
 	gui.add(paramsCube);
-	gui.add(dm.paramsDepthMap);
+	gui.add(dm.params);
 }
 //--------------------------------------------------------------
 void ofApp::update() {
 	time += ofGetLastFrameTime();
 	oscillation = sin(time) * 100.0f;
-
-	cam.setNearClip(nearPlane);
-	cam.setFarClip(farPlane);
 
 	dm.update();
 }
@@ -60,7 +56,7 @@ void ofApp::renderScene() {
 	}
 
 	ofFill();
-	ofSetColor(255, 100, 50); // Orange color for normal view
+	ofSetColor(ofColor::darkBlue);
 	ofDrawBox(0, 0, 0, cubeSize);
 
 	ofPopMatrix();
@@ -72,54 +68,61 @@ void ofApp::drawGui() {
 
 	gui.draw();
 
-	ofSetColor(255, 255, 0);
-	int infoY = height - 120;
+	ofSetColor(128);
+	int infoY = ofGetHeight() - 20 * 2;
 	ofDrawBitmapString("SPACE: Toggle Depth/Color | S: Save | G: Hide GUI | R: Reset", 20, infoY);
-	ofDrawBitmapString("Current: " + string(dm.showDepthMap ? "DEPTH MAP" : "COLOR") + " | FPS: " + ofToString(ofGetFrameRate(), 1), 20, infoY + 20);
+	ofDrawBitmapString("Current: " + string(dm.enableDepthMap ? "DEPTH MAP" : "COLOR") + " | FPS: " + ofToString(ofGetFrameRate(), 1), 20, infoY + 20);
 
-	if (dm.showDepthMap) {
+	if (dm.enableDepthMap) {
 		ofDrawBitmapString("Ready for ComfyUI ControlNet Depth", 20, infoY + 40);
 	}
+}
+
+//--------------------------------------------------------------
+void ofApp::resetScene() {
+	cubeSize = 200;
+
+	camera.setupPerspective();
+	camera.setDistance(800);
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
 	ofClear(0);
 
-	dm.begin(cam);
-	{
-		cam.begin();
-		ofEnableDepthTest();
-		renderScene();
-		cam.end();
-	}
-	dm.end(cam);
+	// Start recording into the addon's FBO. The addon will bind the depth shader
+	// only if enableDepthMap is true.
+	dm.begin();
 
-	ofSetColor(255);
-	dm.draw();
+	// The app still controls when the camera begins/ends.
+	camera.begin();
+	renderScene();
+	camera.end();
 
-	if (!hideGui) drawGui();
+	dm.end();
+
+	dm.draw(0, 0, ofGetWidth(), ofGetHeight());
+
+	if (bGui) drawGui();
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 	switch (key) {
 	case ' ':
-		dm.showDepthMap = !dm.showDepthMap;
+		dm.enableDepthMap = !dm.enableDepthMap;
 		break;
 	case 's':
 		dm.save();
 		break;
 	case 'g':
-		hideGui = !hideGui;
+		bGui = !bGui;
 		break;
 	case 'f':
 		ofToggleFullscreen();
 		break;
 	case 'r':
-		cubeSize = 200;
-		nearPlane = 100;
-		farPlane = 2000;
+		resetScene();
 		dm.reset();
 		break;
 	}

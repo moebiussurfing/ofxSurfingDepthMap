@@ -1,3 +1,4 @@
+//ofApp.h
 #pragma once
 
 #include "ofMain.h"
@@ -10,26 +11,26 @@ public:
 	void update();
 	void draw();
 	void drawGui();
+	void resetScene();
 	void keyPressed(int key);
 
 private:
-	ofEasyCam cam;
+	ofEasyCam camera;
 
 	ofxPanel gui;
 
 	ofParameterGroup paramsCube;
 	ofParameter<float> cubeSize;
 	ofParameter<bool> cubeAnim;
-
-	ofParameter<float> nearPlane;
-	ofParameter<float> farPlane;
+	ofParameter<void> vReset;
+	ofEventListener vResetListener;
 
 	float oscillation;
 	float time;
 
 	int width, height;
 
-	bool hideGui;
+	ofParameter<bool> bGui;
 	void setupGui();
 
 	void renderScene();

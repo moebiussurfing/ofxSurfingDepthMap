@@ -1,23 +1,40 @@
+//ofxSurfingDepthMap.cpp
 #include "ofxSurfingDepthMap.h"
 
 //--------------------------------------------------------------
-void ofxSurfingDepthMap::setup() {
-	setupParams();
-	setupFBOs();
-	setupShaders();
+ofxSurfingDepthMap::ofxSurfingDepthMap() {
+}
+
+//--------------------------------------------------------------
+ofxSurfingDepthMap::~ofxSurfingDepthMap() {
+}
+
+//--------------------------------------------------------------
+void ofxSurfingDepthMap::setup(ofCamera * cam) {
+	if (cam != nullptr) {
+		camera = cam;
+	} else {
+		ofLogError("ofxSurfingDepthMap") << "Failed to load ofCamera";
+
+	}
 
 	width = 1024;
 	height = 1024;
+
+	setupParams();
+	setupFbo();
+	setupShader();
 }
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::setupParams() {
-	paramsDepthMap.setName("DepthMap");
-	paramsDepthMap.add(depthContrast.set("Depth Contrast", 1.0, 0.1, 3.0));
-	paramsDepthMap.add(depthBrightness.set("Depth Brightness", 0.0, -0.5, 0.5));
-	paramsDepthMap.add(depthGamma.set("Depth Gamma", 1.0, 0.5, 2.5));
-	paramsDepthMap.add(invertDepth.set("Invert Depth", false));
-	paramsDepthMap.add(resetDepthMapButton.set("Reset DepthMap"));
+	params.setName("DepthMap");
+	params.add(enableDepthMap.set("Enable DepthMap", false));
+	params.add(depthContrast.set("Depth Contrast", 1.0, 0.1, 3.0));
+	params.add(depthBrightness.set("Depth Brightness", 0.0, -0.5, 0.5));
+	params.add(depthGamma.set("Depth Gamma", 1.0, 0.5, 2.5));
+	params.add(invertDepth.set("Invert Depth", false));
+	params.add(resetDepthMapButton.set("Reset DepthMap"));
 
 	resetDepthMapButtonListener = resetDepthMapButton.newListener([this](const void * sender) {
 		reset();
@@ -25,75 +42,30 @@ void ofxSurfingDepthMap::setupParams() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingDepthMap::setupFBOs() {
-	ofFboSettings settings;
-	settings.width = width;
-	settings.height = height;
-	settings.useDepth = true;
-	settings.internalformat = GL_RGBA;
-	settings.numSamples = 0;
+void ofxSurfingDepthMap::setupFbo() {
+	ofFboSettings s;
+	s.width = width;
+	s.height = height;
+	s.internalformat = GL_RGBA;//ready for comfyui
+	//s.internalformat = GL_R32F;
+	s.useDepth = true; // we want depth testing in the scene
+	s.useStencil = false;
+	s.numSamples = 0;
 
-	depthFbo.allocate(settings);
-	colorFbo.allocate(settings);
+	// allocate or re-allocate
+	fbo.allocate(s);
 }
 
 //--------------------------------------------------------------
-void ofxSurfingDepthMap::setupShaders() {
-	// Simple depth rendering shader
-	string depthVertShader = R"(
-        #version 330
-        
-        uniform mat4 modelViewProjectionMatrix;
-        uniform mat4 modelViewMatrix;
-        
-        in vec4 position;
-        out float viewZ;
-        
-        void main(){
-            vec4 viewPos = modelViewMatrix * position;
-            viewZ = -viewPos.z; // Store view space Z (positive = distance from camera)
-            gl_Position = modelViewProjectionMatrix * position;
-        }
-    )";
-
-	string depthFragShader = R"(
-        #version 330
-        
-        uniform float nearPlane;
-        uniform float farPlane;
-        uniform float depthContrast;
-        uniform float depthBrightness;
-        uniform float depthGamma;
-        uniform int invertDepth;
-        
-        in float viewZ;
-        out vec4 fragColor;
-        
-        void main(){
-            // Normalize depth from near to far plane
-            float normalizedDepth = (viewZ - nearPlane) / (farPlane - nearPlane);
-            normalizedDepth = clamp(normalizedDepth, 0.0, 1.0);
-            
-            // Apply contrast (safe - maintains spatial relationships)
-            normalizedDepth = ((normalizedDepth - 0.5) * depthContrast) + 0.5;
-            normalizedDepth = clamp(normalizedDepth, 0.0, 1.0);
-            
-            // Apply gamma correction (safe - improves gradients)
-            normalizedDepth = pow(normalizedDepth, 1.0 / depthGamma);
-            
-            // Apply brightness offset (safe - shifts range)
-            normalizedDepth = clamp(normalizedDepth + depthBrightness, 0.0, 1.0);
-            
-            // Invert based on preference
-            float depthValue = (invertDepth == 1) ? normalizedDepth : (1.0 - normalizedDepth);
-            
-            fragColor = vec4(vec3(depthValue), 1.0);
-        }
-    )";
-
-	depthShader.setupShaderFromSource(GL_VERTEX_SHADER, depthVertShader);
-	depthShader.setupShaderFromSource(GL_FRAGMENT_SHADER, depthFragShader);
-	depthShader.linkProgram();
+void ofxSurfingDepthMap::setupShader() {
+	// Shader must be present in bin/data/shadersGL3/
+	// It is used during geometry rendering when enableDepthMap == true.
+	// The vertex shader should output view-space z as a varying,
+	// and the fragment shader should compute normalized depth and optionally apply contrast/gamma/brightness/invert.
+	bool ok = shader.load("shadersGL3/depth.vert", "shadersGL3/depth.frag");
+	if (!ok) {
+		ofLogError("ofxSurfingDepthMap") << "Failed to load shaders from shadersGL3/";
+	}
 }
 
 //--------------------------------------------------------------
@@ -101,82 +73,78 @@ void ofxSurfingDepthMap::update() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingDepthMap::begin(ofCamera & cam) {
-	ofClear(0);
+void ofxSurfingDepthMap::begin() {
+	if (!camera) return;
 
-	depthFbo.begin();
-	ofClear(0);
-
+	fbo.begin();
+	ofClear(0, 0, 0, 255);
 	ofEnableDepthTest();
-
-	cam.begin();
-
-	depthShader.begin();
-	// Pass camera parameters to shader
-	depthShader.setUniform1f("nearPlane", nearPlane);
-	depthShader.setUniform1f("farPlane", farPlane);
-
-	// Pass depth mapping parameters
-	depthShader.setUniform1f("depthContrast", depthContrast);
-	depthShader.setUniform1f("depthBrightness", depthBrightness);
-	depthShader.setUniform1f("depthGamma", depthGamma);
-	depthShader.setUniform1i("invertDepth", invertDepth ? 1 : 0);
-
-	//renderScene(true);
+	// If depth effect is enabled, bind shader BEFORE the user draws geometry.
+	// The shader will receive model/view/projection matrices from OF automatically,
+	// and we will set uniforms from params so the shader can map depth -> grayscale.
+	if (enableDepthMap && shader.isLoaded()) {
+		shader.begin();
+		shader.setUniform1f("nearPlane", camera->getNearClip());
+		shader.setUniform1f("farPlane", camera->getFarClip());
+		shader.setUniform1f("depthContrast", depthContrast);
+		shader.setUniform1f("depthBrightness", depthBrightness);
+		shader.setUniform1f("depthGamma", depthGamma);
+		shader.setUniform1i("invertDepth", invertDepth ? 1 : 0);
+	}
 }
 
 //--------------------------------------------------------------
-void ofxSurfingDepthMap::end(ofCamera & cam) {
+void ofxSurfingDepthMap::end() {
+	if (!camera) return;
 
-	depthShader.end();
-	cam.end();
-
-	depthFbo.end();
-
-	//// 2. Render normal color pass
-	//if (!showDepthMap) {
-	//	colorFbo.begin();
-	//	ofClear(50, 50, 50); // Dark gray background
-	//	cam.begin();
-	//	renderScene(false);
-	//	cam.end();
-	//	colorFbo.end();
-	//}
+	// If shader was bound, unbind it now (so subsequent draws won't be affected)
+	if (enableDepthMap && shader.isLoaded()) {
+		shader.end();
+	}
+	ofDisableDepthTest();
+	fbo.end();
 }
 
 //--------------------------------------------------------------
-void ofxSurfingDepthMap::draw() {
-
+void ofxSurfingDepthMap::draw(float x , float y, float w , float h) {
 	ofSetColor(255);
 
-	depthFbo.draw(0, 0);
+	if (w <= 0) w = width;
+	if (h <= 0) h = height;
 
-	//if (showDepthMap) {
-	//	depthFbo.draw(0, 0);
-	//} else {
-	//	colorFbo.draw(0, 0);
-	//}
+	// We rendered into the FBO. If depth effect was enabled,
+	// the geometry was already shaded to grayscale depth values.
+	// If disabled, the FBO contains the normal colored render.
+	fbo.draw(x, y, w, h);
 }
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::reset() {
-	// Valores que NO añaden distorsión a distancias ni grises
-	depthContrast = 1.0; // Sin modificar contraste (lineal)
-	depthBrightness = 0.0; // Sin offset de brillo
-	depthGamma = 1.0; // Sin corrección gamma (lineal)
-	invertDepth = false; // Convención estándar: blanco=cerca, negro=lejos
+	// reset to neutral values that don't distort distance mapping
+	depthContrast = 1.0;
+	depthBrightness = 0.0;
+	depthGamma = 1.0;
+	invertDepth = false;
+
+	//camera->setupPerspective();
 
 	ofLogNotice() << "DepthMap parameters reset to neutral values (no distortion)";
 }
 
-//--------------------------------------------------------------
-void ofxSurfingDepthMap::save() {
-	// Save depth map
-	if (showDepthMap) {
-		ofPixels pixels;
-		depthFbo.readToPixels(pixels);
-		string filename = "depth_map_" + ofToString(ofGetTimestampString()) + ".png";
-		ofSaveImage(pixels, filename);
-		ofLogNotice() << "Depth map saved: " << filename;
+// --------------------------------------------------------------
+void ofxSurfingDepthMap::save(const std::string & filename) {
+	ofPixels pix;
+	fbo.readToPixels(pix);
+
+	// GL_R32F, readToPixels(ofFloatPixels &) .exr o.tif
+
+	string out;
+	if (filename.empty()) {
+		out = "depthmap_" + ofToString(ofGetTimestampString()) + ".png";
+	} else {
+		out = filename;
 	}
+
+	ofSaveImage(pix, out);
+	ofLogNotice("ofxSurfingDepthMap") << "Saved buffer to " << out;
 }
