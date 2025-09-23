@@ -85,5 +85,5 @@ void main(){
     float depthValue = (invertDepth == 1) ? (1.0 - normalizedDepth) : normalizedDepth;
     
     // Output as grayscale
-    fragColor = vec4(vec3(depthValue), 1.0);
+	fragColor = vec4(vec3(depthValue), 1.0);
 }

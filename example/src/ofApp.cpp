@@ -56,7 +56,7 @@ void ofApp::drawScene() {
 	if (cubeAnim) {
 		ofTranslate(oscillation, oscillation * 0.5f, 0);
 		ofRotateYDeg(time * 20);
-		//ofRotateXDeg(time * 15);
+		ofRotateXDeg(time * 15);
 	}
 
 	ofFill();
@@ -104,7 +104,7 @@ void ofApp::doResetScene() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-	ofClear(48);
+	ofClear(24);
 
 	// Start recording into the addon's FBO. The addon will bind the depth shader
 	// only if enableDepthMap is true.

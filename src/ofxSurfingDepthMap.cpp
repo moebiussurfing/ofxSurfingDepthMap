@@ -43,7 +43,7 @@ void ofxSurfingDepthMap::setupParams() {
 	paramsDepthMode.setName("Mode");
 	paramsDepthMode.add(depthMode.set("Depth Mode", 0, 0, 2));
 	paramsDepthMode.add(depthModeName.set("-1"));
-	paramsDepthMode.add(logCurvePower.set("Log Power", 1.0f, 0.01f, 10.0f));
+	paramsDepthMode.add(logCurvePower.set("Log Power", 1.0f, 0.05f, 10.0f));
 	paramsDepthMode.add(vResetMode.set("Reset"));
 	params.add(paramsDepthMode);
 
@@ -164,7 +164,7 @@ void ofxSurfingDepthMap::doAutoFocus() {
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::begin() {
 	fbo.begin();
-	ofClear(0, 0, 0, 255);
+	ofClear(0, 0, 0, 0);
 	ofEnableDepthTest();
 
 	// If depth effect is enabled, bind shader BEFORE the user draws geometry.
