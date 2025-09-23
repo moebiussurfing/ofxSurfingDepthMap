@@ -55,7 +55,7 @@ void ofApp::renderScene() {
 	if (cubeAnim) {
 		ofTranslate(oscillation, oscillation * 0.5f, 0);
 		ofRotateYDeg(time * 20);
-		ofRotateXDeg(time * 15);
+		//ofRotateXDeg(time * 15);
 	}
 
 	ofFill();

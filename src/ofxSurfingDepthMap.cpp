@@ -43,7 +43,6 @@ void ofxSurfingDepthMap::setupParams() {
 	paramsDepthMode.setName("Mode");
 	paramsDepthMode.add(depthMode.set("Depth Mode", 0, 0, 2));
 	paramsDepthMode.add(depthModeName.set("-1"));
-	paramsDepthMode.add(useLogDepth.set("Log Depth", false));
 	paramsDepthMode.add(vResetMode.set("Reset Mode"));
 	params.add(paramsDepthMode);
 
@@ -52,6 +51,7 @@ void ofxSurfingDepthMap::setupParams() {
 	paramsCamera.add(useManualClipPlanes.set("Manual Clips", false));
 	paramsCamera.add(manualNear.set("Manual Near", 0.1f, 0.01f, 10.0f));
 	paramsCamera.add(manualFar.set("Manual Far", 2000.0f, 10.0f, 10000.0f));
+	paramsCamera.add(vResetManual.set("Reset Manual"));
 	params.add(paramsCamera);
 
 	// Focus range parameters (only active when depthMode == 2)
@@ -59,6 +59,7 @@ void ofxSurfingDepthMap::setupParams() {
 	paramsFocus.add(focusNear.set("Focus Near", 100.0f, 1.0f, 1000.0f));
 	paramsFocus.add(focusFar.set("Focus Far", 500.0f, 100.0f, 2000.0f));
 	paramsFocus.add(focusRange.set("Focus Width", 1.0f, 0.1f, 5.0f));
+	paramsFocus.add(vAutoFocus.set("Auto Focus"));
 	paramsFocus.add(vResetFocus.set("Reset Focus"));
 	params.add(paramsFocus);
 
@@ -66,15 +67,19 @@ void ofxSurfingDepthMap::setupParams() {
 
 	// Listener for updating focus parameters when camera or manual values change
 	useManualCameraClipPlanesListener = useManualClipPlanes.newListener([this](bool & val) {
-		updateFocusDefaults();
+		ofLogNotice() << "useManualCameraClipPlanesListener";
 	});
 
 	manualNearListener = manualNear.newListener([this](float & val) {
-		if (!useManualClipPlanes) updateFocusDefaults();
+		ofLogNotice() << "manualNearListener";
 	});
 
 	manualFarListener = manualFar.newListener([this](float & val) {
-		if (!useManualClipPlanes) updateFocusDefaults();
+		ofLogNotice() << "manualFarListener";
+	});
+
+	vAutoFocusListener = vAutoFocus.newListener([this](float & val) {
+		doAutoFocus();
 	});
 
 	depthModeListener = depthMode.newListener([this](int & val) {
@@ -135,18 +140,14 @@ void ofxSurfingDepthMap::setupShader() {
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::update() {
-	// Update focus defaults if camera planes are being used
-	if (!useManualClipPlanes && camera) {
-		updateFocusDefaults();
-	}
 }
 
 //--------------------------------------------------------------
-void ofxSurfingDepthMap::updateFocusDefaults() {
-	//if (!camera) return;
+void ofxSurfingDepthMap::doAutoFocus() {
+	ofLogError("ofxSurfingDepthMap") << "doAutoFocus()";
 
-	float near_ = (!useManualClipPlanes.get() ? camera->getNearClip() : manualNear.get());
-	float far_ = (!useManualClipPlanes.get() ? camera->getFarClip() : manualFar.get());
+	float near_ = (useManualClipPlanes.get() ? manualNear.get() : camera->getNearClip());
+	float far_ = (useManualClipPlanes.get() ? manualFar.get() : camera->getFarClip());
 
 	// Auto-adjust focus range to be in the middle third of the depth range
 	float range = far_ - near_;
@@ -162,8 +163,6 @@ void ofxSurfingDepthMap::updateFocusDefaults() {
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::begin() {
-	//if (!camera) return;
-
 	fbo.begin();
 	ofClear(0, 0, 0, 255);
 	ofEnableDepthTest();
@@ -193,7 +192,6 @@ void ofxSurfingDepthMap::begin() {
 
 		// Set depth mode and related parameters
 		shader.setUniform1i("depthMode", depthMode);
-		shader.setUniform1i("useLogDepth", useLogDepth ? 1 : 0);
 
 		// Set focus range parameters (used only when depthMode == 2)
 		shader.setUniform1f("focusNear", focusNear);
@@ -204,8 +202,6 @@ void ofxSurfingDepthMap::begin() {
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::end() {
-	//if (!camera) return;
-
 	// If shader was bound, unbind it now (so subsequent draws won't be affected)
 	if (enableDepthMap && shader.isLoaded()) {
 		shader.end();
@@ -229,7 +225,9 @@ void ofxSurfingDepthMap::draw(float x, float y, float w, float h) {
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::doResetTweaks() {
-	// Reset to neutral values
+	ofLogNotice() << "doResetTweaks()";
+
+	// Reset to neutral tweak values
 	depthContrast = 1.0;
 	depthBrightness = 0.0;
 	depthGamma = 1.0;
@@ -238,6 +236,8 @@ void ofxSurfingDepthMap::doResetTweaks() {
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::doResetManual() {
+	ofLogNotice() << "doResetManual()";
+
 	// Reset manual clip planes to reasonable defaults
 	manualNear = 0.1f;
 	manualFar = 2000.0f;
@@ -245,14 +245,17 @@ void ofxSurfingDepthMap::doResetManual() {
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::doResetMode() {
+	ofLogNotice() << "doResetMode()";
 
+	// Set default linear mode
 	depthMode = 0; // Linear mode
-	useLogDepth = false;
 	useManualClipPlanes = false;
 }
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::doResetFocus() {
+	ofLogNotice() << "doResetFocus()";
+
 	// Reset focus to reasonable defaults
 	focusNear = 100.0f;
 	focusFar = 500.0f;
@@ -261,13 +264,12 @@ void ofxSurfingDepthMap::doResetFocus() {
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::doResetAll() {
+	ofLogNotice() << "doResetAll()";
+
+	// Reset all
 	doResetTweaks();
 	doResetManual();
 	doResetMode();
-
-	//updateFocusDefaults();
-
-	ofLogNotice() << "DepthMap parameters reset to neutral values (no distortion)";
 }
 
 // --------------------------------------------------------------
@@ -297,8 +299,6 @@ void ofxSurfingDepthMap::updateDepthModeString() {
 	} else if (depthMode == 2) { // 0=FocusRange,
 		depthModeName = depthModeNames[2];
 	} else {
-		depthModeName = "-1";
+		depthModeName = "-1";//error
 	}
-
-	useLogDepth = (depthMode == 1);
 }
