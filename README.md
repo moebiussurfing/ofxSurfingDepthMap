@@ -98,7 +98,7 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 ## Installation
 
 1. Clone to `openFrameworks/addons/`
-2. Add to your project when using **PG**
+2. Add the addon to your project when using **PG**
 3. Copy `depth.vert` and `depth.frag` to `bin/data/shadersGL3/`
 4. Include `ofxSurfingDepthMap.h` in your project
 
@@ -115,6 +115,6 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 - **Prototyping**: Quick depth visualization for 3D applications
 
 ## TODO
-- Export image files to custom folder (ie: `/ComfyUI/images/input/depth-maps/`).
+- Export image files to custom folder (ie: `/ComfyUI/input/depth-maps/`).
 - Custom viewport using `ofRectangle`.
 - Fix GLSL 120.
