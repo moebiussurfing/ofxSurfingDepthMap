@@ -16,6 +16,7 @@
 ```cpp
 // ofApp.h
 #include "ofxSurfingDepthMap.h"
+
 ofxSurfingDepthMap depthMap;
 ofEasyCam camera;
 
@@ -39,13 +40,13 @@ depthMap.draw(0, 0, ofGetWidth(), ofGetHeight());
 
 ## Depth Modes
 
-### Linear Mode (Default)
+### 1. Linear Mode (Default)
 Direct linear mapping from near to far planes. Best for simple scenes with uniform depth distribution.
 
-### Logarithmic Mode  
+### 2. Logarithmic Mode  
 Applies logarithmic curve for better perspective handling. Use `Log Power` parameter to control curve aggressiveness (0.05 = subtle, 10.0 = extreme).
 
-### Focus Range Mode
+### 3. Focus Range Mode
 Concentrates contrast in a specific depth range, compressing everything else. Perfect for emphasizing specific subjects while de-emphasizing background/foreground.
 
 ## Key Parameters
@@ -90,7 +91,7 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 ## Installation
 
 1. Clone to `openFrameworks/addons/`
-2. Add to your project 
+2. Add to your project when using **PG**
 3. Copy `depth.vert` and `depth.frag` to `bin/data/shadersGL3/`
 4. Include `ofxSurfingDepthMap.h` in your project
 
