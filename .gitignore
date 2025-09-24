@@ -2,8 +2,10 @@
 # CURRENT PROJECT
 #########################
 
-# *.jpg
-
+*.jpg
+*.png
+example/enc_temp_folder/*
+/example/enc_temp_folder
 
 #########################
 # general patterns
@@ -577,5 +579,4 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-example/enc_temp_folder/7ea87deea690d1925915e248c4c6d69/ofxSurfingDepthMap.cpp
-/example/enc_temp_folder
+
