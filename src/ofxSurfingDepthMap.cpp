@@ -66,7 +66,7 @@ void ofxSurfingDepthMap::setupParams() {
 
 	params.add(vResetAll.set("Reset"));
 
-	paramsExport.setName("Export Depth-Map PNG");
+	paramsExport.setName("Export PNG");
 	paramsExport.add(vChooseFolder.set("Set Output Folder"));
 	paramsExport.add(pathFolder.set("Path Folder", ""));
 	paramsExport.add(vOpenExportFolder.set("Open Folder"));
@@ -273,7 +273,8 @@ void ofxSurfingDepthMap::drawViewport() {
 	ofPushStyle();
 	ofNoFill();
 	ofSetLineWidth(2);
-	ofSetColor(ofColor::yellow, 64);
+	ofColor c = ofColor::yellow;
+	ofSetColor(ofColor(c.r, c.g, c.b, 0.25 * c.a * Bounce()));
 	ofDrawRectangle(rectViewport);
 	ofPopStyle();
 }
@@ -361,7 +362,6 @@ void ofxSurfingDepthMap::save() {
 	ofSystem("xdg-open " + quotedPath);
 #endif
 }
-
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::doOpenExportFolder() {

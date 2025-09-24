@@ -70,6 +70,8 @@ public:
 
 	ofParameterGroup paramsSettings;
 
+	ofParameter<bool> bGui { "DepthMap", true };
+
 private:
 	void updateDepthModeString();
 
@@ -105,6 +107,14 @@ private:
 	ofFbo fbo; // single FBO
 	ofShader shader; // external file shader
 	ofCamera * camera; // pointer to camera
+
+	// for blinking viewport
+	float Tick(float delay = 1.0f) {
+		return fmodf(ofGetElapsedTimeMillis() / 1000.0f, delay) / delay;
+	};
+	float Bounce(float delay = 1.0f) {
+		return 0.5f * (1.0 + glm::sin(Tick(delay) * glm::two_pi<float>()));
+	};
 };
 
 //---
