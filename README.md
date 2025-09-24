@@ -55,7 +55,7 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 - **Enable**: Use manual near/far planes instead of camera settings
 - **Near/Far**: Manual clipping plane distances
 
-### Focus Range (Mode 2 only)
+### Focus Range
 - **Near/Far**: Depth boundaries for high contrast zone  
 - **Auto Focus**: Automatically calculates optimal focus range based on current scene
 
