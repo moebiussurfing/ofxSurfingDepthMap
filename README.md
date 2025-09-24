@@ -42,12 +42,12 @@ depthMap.begin();
 }
 depthMap.end();
 
-depthMap.draw(0, 0, ofGetWidth(), ofGetHeight());
+depthMap.draw(0, 0);
 ```
 
 ## Depth Modes
 
-### 1. Linear Mode (Default)
+### 1. Linear Mode
 Direct linear mapping from near to far planes. Best for simple scenes with uniform depth distribution.
 
 ### 2. Logarithmic Mode  
@@ -115,6 +115,6 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 - **Prototyping**: Quick depth visualization for 3D applications
 
 ## TODO
-- Export image files to custom folder (ie: `/ComfyUI/input/depth-maps/`).
+- Export image files to custom folder (ie: `/ComfyUI/images/input/depth-maps/`).
 - Custom viewport using `ofRectangle`.
 - Fix GLSL 120.
