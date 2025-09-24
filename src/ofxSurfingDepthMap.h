@@ -3,11 +3,6 @@
 
 #include "ofMain.h"
 
-//#ifdef _WIN32
-//	#include <shellapi.h> // For using ShellExecute
-//	#include <windows.h>
-//#endif
-
 class ofxSurfingDepthMap {
 public:
 	ofxSurfingDepthMap();
