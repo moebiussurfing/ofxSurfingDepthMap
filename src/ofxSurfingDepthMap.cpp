@@ -332,25 +332,36 @@ void ofxSurfingDepthMap::save() {
 	ofPixels pix;
 	fbo.readToPixels(pix);
 
-	string out = pathFolder.get() + "depthmap_" + ofToString(ofGetTimestampString()) + ".png";
+	// Build filename
+	std::string filename = "depthmap_" + ofToString(ofGetTimestampString()) + ".png";
+	std::string out;
+	if (pathFolder.get() == "")
+		out = ofFilePath::join(ofToDataPath("", true), filename);
+	else
+		out = ofFilePath::join(pathFolder.get(), filename);
 
+	// Save image
 	ofSaveImage(pix, out);
 	ofLogNotice("ofxSurfingDepthMap") << "Saved depth-map png image to " << out;
 
-	// Auto open the file
-	ofLogNotice("ofxSurfingDepthMap") << "Open saved image from " << out;
+	// Get absolute path
+	std::string path_ = ofFilePath::getAbsolutePath(out);
 
-	// real path used when exporting..
-	string path_ = ofFilePath::getAbsolutePath(out);
+	ofLogNotice("ofxSurfingDepthMap") << "Open saved image from " << path_;
+
+	// Wrap path in quotes to handle spaces
+	std::string quotedPath = "\"" + path_ + "\"";
 
 #ifdef TARGET_OSX
-	ofSystem("open " + path_);
+	ofSystem("open " + quotedPath);
 #elif defined(TARGET_WIN32)
-	ofSystem("start " + path_);
+	// Windows start needs empty title before path
+	ofSystem("start \"\" " + quotedPath);
 #elif defined(TARGET_LINUX)
-	ofSystem("xdg-open " + path_);
+	ofSystem("xdg-open " + quotedPath);
 #endif
 }
+
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::doOpenExportFolder() {
