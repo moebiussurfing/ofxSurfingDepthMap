@@ -1,7 +1,5 @@
 # ofxSurfingDepthMap
 
-Real-time depth map generation addon for `openFrameworks`, optimized for `ControlNet depth` processing and AI image generation workflows.
-
 ![](Screenshot.png)
 
 ## Features
@@ -28,8 +26,10 @@ depthMap.setup(&camera);
 depthMap.begin();
 {
     camera.begin();
+
     // Draw your 3D scene here
     drawScene();
+
     camera.end();
 }
 depthMap.end();
