@@ -3,11 +3,14 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
+#if 0
+	// Move window to the left screen
 	width = 1280;
 	height = width * (9 / 16.f);
 	ofSetWindowShape(width, height);
 	int pad = 50;
 	ofSetWindowPosition(-width - pad, pad);
+#endif
 
 	oscillation = 0.0f;
 	time = 0.0f;
@@ -15,15 +18,18 @@ void ofApp::setup() {
 
 	doResetScene();
 
-	dm.setup(&camera);
-
-	setupGui();
-
 	ofEnableDepthTest();
 
 	vResetListener = vReset.newListener([this](const void * sender) {
 		doResetScene();
 	});
+
+	//---
+
+	dm.setup(&camera);
+	//dm.setPathFolder("D:\\depth-maps\\"); // custom output folder
+
+	setupGui();
 }
 
 //--------------------------------------------------------------
@@ -35,9 +41,9 @@ void ofApp::setupGui() {
 
 	gui.setup("Example");
 	gui.add(paramsCube);
+
 	gui.add(dm.params);
 
-	//gui.getGroup(paramsCube.getName()).minimize();
 	gui.minimizeAll();
 }
 
@@ -56,14 +62,14 @@ void ofApp::drawScene() {
 	if (cubeAnim) {
 		ofTranslate(oscillation, oscillation * 0.5f, 0);
 		ofRotateYDeg(time * 20);
-		ofRotateXDeg(time * 15);
+		//ofRotateXDeg(time * 15);
 	}
 
 	ofFill();
 	ofSetColor(ofColor::darkBlue);
 	{
 		ofPushMatrix();
-		ofRotateYDeg(45);			
+		ofRotateYDeg(45);
 		ofDrawBox(0, 0, 0, cubeSize);
 		ofPopMatrix();
 
@@ -109,15 +115,20 @@ void ofApp::draw() {
 	// Start recording into the addon's FBO. The addon will bind the depth shader
 	// only if enableDepthMap is true.
 	dm.begin();
-
-	// The app still controls when the camera begins/ends.
-	camera.begin();
-	drawScene();
-	camera.end();
-
+	{
+		// The app still controls when the camera begins/ends.
+		camera.begin();
+		{
+			drawScene();
+		}
+		camera.end();
+	}
 	dm.end();
 
+	// Draw to fullscreen stretched
 	//dm.draw(0, 0, ofGetWidth(), ofGetHeight());
+
+	// Draw original size in the center
 	dm.draw(ofGetWidth() / 2 - dm.width / 2, ofGetHeight() / 2 - dm.height / 2, dm.width, dm.height);
 
 	if (bGui) drawGui();

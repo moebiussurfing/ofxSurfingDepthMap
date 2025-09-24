@@ -60,6 +60,9 @@ public:
 
 	int width, height;
 
+	ofParameter<string> pathFolder;
+	void setPathFolder(const std::string & path) { pathFolder = path; }
+
 private:
 	void updateDepthModeString();
 

@@ -65,6 +65,8 @@ void ofxSurfingDepthMap::setupParams() {
 
 	params.add(vResetAll.set("Reset"));
 
+	pathFolder.set("Path Folder", "");
+
 	// Listener for updating focus parameters when camera or manual values change
 	useManualCameraClipPlanesListener = useManualClipPlanes.newListener([this](bool & val) {
 	});
@@ -286,7 +288,7 @@ void ofxSurfingDepthMap::save(const std::string & filename) {
 
 	string out;
 	if (filename.empty()) {
-		out = "depthmap_" + ofToString(ofGetTimestampString()) + ".png";
+		out = pathFolder.get() + "depthmap_" + ofToString(ofGetTimestampString()) + ".png";
 	} else {
 		out = filename;
 	}
@@ -304,6 +306,6 @@ void ofxSurfingDepthMap::updateDepthModeString() {
 	} else if (depthMode == 2) { // 0=FocusRange,
 		depthModeName = depthModeNames[2];
 	} else {
-		depthModeName = "-1";//error
+		depthModeName = "-1"; //error
 	}
 }
