@@ -125,18 +125,25 @@ void ofxSurfingDepthMap::setupFbo() {
 
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::setupShader() {
-	ofLogNotice("ofxSurfingDepthMap") << "setupShader()";
+	ofLogNotice("ofxSurfingDepthMap") << "OpenGL Version: " << glGetString(GL_VERSION);
 
-	// Shader must be present in bin/data/shadersGL3/
-	// It is used during geometry rendering when enableDepthMap == true.
-	// The vertex shader should output view-space z as a varying,
-	// and the fragment shader should compute normalized depth and optionally apply contrast/gamma/brightness/invert.
-	bool ok = shader.load("shadersGL3/depth.vert", "shadersGL3/depth.frag");
+	// Detectar si podemos usar GL3 basado en la versión real
+	std::string glVersion = (char *)glGetString(GL_VERSION);
+	bool useGL3 = (glVersion.find("3.") == 0 || glVersion.find("4.") == 0);
+
+	bool ok = false;
+	if (useGL3) {
+		ok = shader.load("shadersGL3/depth.vert", "shadersGL3/depth.frag");
+		ofLogNotice() << "Using GL3 shaders";
+	} else {
+		ok = shader.load("shaders/depth.vert", "shaders/depth.frag");
+		ofLogNotice() << "Using GL2 shaders";
+	}
+
 	if (!ok) {
-		ofLogError("ofxSurfingDepthMap") << "Failed to load shaders from shadersGL3/";
+		ofLogError("ofxSurfingDepthMap") << "Failed to load shaders";
 	}
 }
-
 //--------------------------------------------------------------
 void ofxSurfingDepthMap::update() {
 }

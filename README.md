@@ -109,6 +109,7 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 ## TODO
 - Export image files to custom folder (ie: `/ComfyUI/input/depth-maps/`).
 - Custom viewport using `ofRectangle`.
+- Fix GLSL 120.
 
 ---
 
