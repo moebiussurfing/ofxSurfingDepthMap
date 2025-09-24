@@ -1,5 +1,7 @@
 # ofxSurfingDepthMap
 
+*Depth-map shader based add-on. Developed for seamless integration with AI workflows and real-time 3D applications.*
+
 ![](Screenshot.png)
 
 ## Features
@@ -15,22 +17,27 @@
 
 ```cpp
 // ofApp.h
+
 #include "ofxSurfingDepthMap.h"
 
 ofxSurfingDepthMap depthMap;
 ofEasyCam camera;
 
-// ofApp.cpp - setup
+//--
+
+// ofApp.cpp
+
+// setup()
 depthMap.setup(&camera);
 
-// ofApp.cpp - draw
+// draw()
 depthMap.begin();
 {
     camera.begin();
-
-    // Draw your 3D scene here
-    drawScene();
-
+    {
+        // Draw your 3D scene here
+        drawScene();
+    }
     camera.end();
 }
 depthMap.end();
@@ -70,7 +77,7 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 - **SPACE**: Toggle depth/color view
 - **S**: Save depth map as PNG
 - **G**: Toggle GUI visibility
-- **R**: Reset all parameters
+- **R**: Reset
 
 ## Workflow Tips
 
@@ -97,8 +104,8 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 
 ## Dependencies
 
-- openFrameworks 0.11.0+
-- ofxGui (included with OF)
+- openFrameworks 0.12.0+
+- ofxGui
 
 ## Use Cases
 
@@ -111,7 +118,3 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 - Export image files to custom folder (ie: `/ComfyUI/input/depth-maps/`).
 - Custom viewport using `ofRectangle`.
 - Fix GLSL 120.
-
----
-
-*Developed for seamless integration with AI workflows and real-time 3D applications.*
