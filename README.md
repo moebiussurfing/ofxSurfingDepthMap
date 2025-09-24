@@ -93,7 +93,7 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 - Output: 1024x1024 RGBA FBO (RGB channels contain grayscale depth)
 - Depth calculation: View-space Z distance with proper perspective correction  
 - File format: PNG with embedded depth information
-- Export image files to custom folders (ie: `/ComfyUI/input/depth-maps/`).
+- Export image files to custom folders (ie: `D:/ComfyUI/input/depth-maps/`).
 - Shader requirements: OpenGL 3.3+ (shadersGL3 folder)
 
 ## Installation
