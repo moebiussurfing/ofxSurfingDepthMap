@@ -3,18 +3,23 @@
 
 #include "ofMain.h"
 
+//#ifdef _WIN32
+//	#include <shellapi.h> // For using ShellExecute
+//	#include <windows.h>
+//#endif
+
 class ofxSurfingDepthMap {
 public:
 	ofxSurfingDepthMap();
 	~ofxSurfingDepthMap();
 
-	void setup(ofCamera* cam);
+	void setup(ofCamera * cam);
 	void update();
 	void draw(float x = 0, float y = 0, float w = -1, float h = -1);
+	void drawViewport();
 	void begin();
 	void end();
-	void save(const std::string & filename = "");
-
+	void save();
 
 private:
 	void setupFbo();
@@ -59,9 +64,16 @@ public:
 	ofParameter<void> vResetAll;
 
 	int width, height;
+	ofRectangle rectViewport;
 
+	ofParameterGroup paramsExport;
 	ofParameter<string> pathFolder;
 	void setPathFolder(const std::string & path) { pathFolder = path; }
+	ofParameter<void> vChooseFolder;
+	ofParameter<void> vExport;
+	ofParameter<void> vOpenExportFolder;
+
+	ofParameterGroup paramsSettings;
 
 private:
 	void updateDepthModeString();
@@ -79,12 +91,19 @@ private:
 	ofEventListener vResetManualListener;
 	ofEventListener vResetFocusListener;
 
+	ofEventListener vChooseFolderListener;
+	ofEventListener vExportListener;
+	ofEventListener vOpenExportFolderListener;
+
 	void doResetTweaks();
 	void doResetMode();
 	void doResetManual();
 	void doResetFocus();
+	void doChooseFolder();
 
 public:
+	void doOpenExportFolder();
+
 	void doResetAll();
 
 private:
@@ -92,3 +111,16 @@ private:
 	ofShader shader; // external file shader
 	ofCamera * camera; // pointer to camera
 };
+
+//---
+
+// NOTES
+
+//// In case your GPU gets image aliased...
+//ofFbo resolved;
+//resolved.allocate(fbo.getWidth(), fbo.getHeight(), fbo.getTexture().getTextureData().glInternalFormat);
+//fbo.blitTo(resolved);
+//resolved.readToPixels(pix);
+
+//// To get full precision depth values
+//GL_R32F, readToPixels(ofFloatPixels &) .exr o.tif

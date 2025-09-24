@@ -19,6 +19,7 @@ void ofxSurfingDepthMap::setup(ofCamera * cam) {
 
 	width = 1024;
 	height = 1024;
+	rectViewport = ofRectangle(0, 0, width, height);
 
 	setupParams();
 	setupFbo();
@@ -65,7 +66,16 @@ void ofxSurfingDepthMap::setupParams() {
 
 	params.add(vResetAll.set("Reset"));
 
-	pathFolder.set("Path Folder", "");
+	paramsExport.setName("Export Depth-Map PNG");
+	paramsExport.add(vChooseFolder.set("Set Output Folder"));
+	paramsExport.add(pathFolder.set("Path Folder", ""));
+	paramsExport.add(vOpenExportFolder.set("Open Folder"));
+	paramsExport.add(vExport.set("Export"));
+	params.add(paramsExport);
+
+	// Settings group available for saving/loading presets externally
+	paramsSettings.setName("ofxSurfingDepthMap");
+	paramsSettings.add(params);
 
 	// Listener for updating focus parameters when camera or manual values change
 	useManualCameraClipPlanesListener = useManualClipPlanes.newListener([this](bool & val) {
@@ -81,11 +91,11 @@ void ofxSurfingDepthMap::setupParams() {
 		updateDepthModeString();
 	});
 
+	updateDepthModeString();
+
 	vAutoFocusListener = vAutoFocus.newListener([this](const void * sender) {
 		doAutoFocus();
 	});
-
-	updateDepthModeString();
 
 	// Resets
 
@@ -108,6 +118,18 @@ void ofxSurfingDepthMap::setupParams() {
 	vResetAllListener = vResetAll.newListener([this](const void * sender) {
 		doResetAll();
 	});
+
+	vChooseFolderListener = vChooseFolder.newListener([this](const void * sender) {
+		doChooseFolder();
+	});
+
+	vOpenExportFolderListener = vOpenExportFolder.newListener([this](const void * sender) {
+		doOpenExportFolder();
+	});
+
+	vExportListener = vExport.newListener([this](const void * sender) {
+		save();
+	});
 }
 
 //--------------------------------------------------------------
@@ -115,11 +137,21 @@ void ofxSurfingDepthMap::setupFbo() {
 	ofFboSettings s;
 	s.width = width;
 	s.height = height;
+
 	s.internalformat = GL_RGBA; // RGB 8 bits ready for comfyui
-	//s.internalformat = GL_R32F;
+	//s.internalformat = GL_R32F; // R 32 bits float (not comfyui ready)
+
 	s.useDepth = true; // we want depth testing in the scene
 	s.useStencil = false;
-	s.numSamples = 0;
+
+#if 1
+	// Enable multisample (antialiasing)
+	s.numSamples = 16; // try 4, 8, or 16 depending on GPU support
+
+	// Optional: make sure texture filtering is smooth
+	s.minFilter = GL_LINEAR;
+	s.maxFilter = GL_LINEAR;
+#endif
 
 	// allocate
 	fbo.allocate(s);
@@ -137,7 +169,7 @@ void ofxSurfingDepthMap::setupShader() {
 	if (useGL3) {
 		ok = shader.load("shadersGL3/depth.vert", "shadersGL3/depth.frag");
 		ofLogNotice() << "Using GL3 shaders";
-	} else {
+	} else { //TODO
 		ok = shader.load("shaders/depth.vert", "shaders/depth.frag");
 		ofLogNotice() << "Using GL2 shaders";
 	}
@@ -166,7 +198,6 @@ void ofxSurfingDepthMap::doAutoFocus() {
 	if (range_ > 0 && focusWidth_ > 0) {
 		focusNear.set(centerPoint_ - focusWidth_ * 0.5f);
 		focusFar.set(centerPoint_ + focusWidth_ * 0.5f);
-		//focusRange.set(focusWidth_);
 	}
 }
 
@@ -231,6 +262,23 @@ void ofxSurfingDepthMap::draw(float x, float y, float w, float h) {
 }
 
 //--------------------------------------------------------------
+void ofxSurfingDepthMap::drawViewport() {
+	ofSetColor(255);
+	int x = ofGetWidth() / 2 - width / 2;
+	int y = ofGetHeight() / 2 - height / 2;
+	rectViewport = ofRectangle(x, y, width, height);
+
+	fbo.draw(rectViewport.getX(), rectViewport.getY(), rectViewport.getWidth(), rectViewport.getHeight());
+
+	ofPushStyle();
+	ofNoFill();
+	ofSetLineWidth(2);
+	ofSetColor(ofColor::yellow, 64);
+	ofDrawRectangle(rectViewport);
+	ofPopStyle();
+}
+
+//--------------------------------------------------------------
 void ofxSurfingDepthMap::doResetTweaks() {
 	ofLogNotice() << "doResetTweaks()";
 
@@ -280,21 +328,72 @@ void ofxSurfingDepthMap::doResetAll() {
 }
 
 // --------------------------------------------------------------
-void ofxSurfingDepthMap::save(const std::string & filename) {
+void ofxSurfingDepthMap::save() {
 	ofPixels pix;
 	fbo.readToPixels(pix);
 
-	// GL_R32F, readToPixels(ofFloatPixels &) .exr o.tif
-
-	string out;
-	if (filename.empty()) {
-		out = pathFolder.get() + "depthmap_" + ofToString(ofGetTimestampString()) + ".png";
-	} else {
-		out = filename;
-	}
+	string out = pathFolder.get() + "depthmap_" + ofToString(ofGetTimestampString()) + ".png";
 
 	ofSaveImage(pix, out);
-	ofLogNotice("ofxSurfingDepthMap") << "Saved buffer to " << out;
+	ofLogNotice("ofxSurfingDepthMap") << "Saved depth-map png image to " << out;
+
+	// Auto open the file
+	ofLogNotice("ofxSurfingDepthMap") << "Open saved image from " << out;
+
+	// real path used when exporting..
+	string path_ = ofFilePath::getAbsolutePath(out);
+
+#ifdef TARGET_OSX
+	ofSystem("open " + path_);
+#elif defined(TARGET_WIN32)
+	ofSystem("start " + path_);
+#elif defined(TARGET_LINUX)
+	ofSystem("xdg-open " + path_);
+#endif
+}
+
+//--------------------------------------------------------------
+void ofxSurfingDepthMap::doOpenExportFolder() {
+	std::string folderStr;
+
+	// Get folder path from parameter or default data folder
+	if (pathFolder.get() != "") {
+		folderStr = pathFolder.get();
+	} else {
+		folderStr = ofToDataPath("", true);
+	}
+
+	// Use ofFile to ensure proper folder path
+	ofFile folder(folderStr);
+	if (!folder.isDirectory()) {
+		folderStr = folder.getEnclosingDirectory(); // get parent if it's a file
+	}
+	folderStr = folder.getAbsolutePath(); // ensures absolute path with correct slashes
+
+	ofLogNotice("ofxSurfingDepthMap") << "doOpenExportFolder() " << folderStr;
+
+#ifdef TARGET_OSX
+	std::string command = "open \"" + folderStr + "\"";
+	system(command.c_str());
+#elif defined(TARGET_LINUX)
+	std::string command = "xdg-open \"" + folderStr + "\"";
+	system(command.c_str());
+#elif defined(_WIN32)
+	// More reliable on Windows using system("start") instead of ShellExecute
+	std::string command = "start \"\" \"" + folderStr + "\"";
+	system(command.c_str());
+#endif
+}
+
+// --------------------------------------------------------------
+void ofxSurfingDepthMap::doChooseFolder() {
+	// Open system dialog to choose a folder
+	ofFileDialogResult result = ofSystemLoadDialog("Select output folder", true); // true = folder mode
+
+	if (result.bSuccess) {
+		pathFolder = result.getPath(); // Save absolute path
+		ofLogNotice("ofxSurfingDepthMap") << "Selected output folder: " << pathFolder.get();
+	}
 }
 
 // --------------------------------------------------------------
