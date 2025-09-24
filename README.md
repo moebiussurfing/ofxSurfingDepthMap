@@ -86,7 +86,6 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 3. **Use Logarithmic mode** when linear produces flat gray areas
 4. **Try Focus Range + Auto Focus** for complex scenes with specific subjects
 5. **Adjust Contrast and Gamma** after selecting the right mode
-6. **Test with Invert toggle** to see which orientation works better for your use case
 
 ## Technical Notes
 
@@ -119,5 +118,4 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 - **Prototyping**: Quick depth visualization for 3D applications
 
 ## TODO
-- Custom viewport using `ofRectangle`.
 - Fix GLSL 120.
