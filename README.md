@@ -99,7 +99,7 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 ## Installation
 
 1. Clone to `openFrameworks/addons/`
-2. Add the addon to your project when using **PG**
+2. Add the addon to your project when using **Project Generator**
 3. Copy `depth.vert` and `depth.frag` to `bin/data/shadersGL3/`
 4. Include `ofxSurfingDepthMap.h` in your project
 
@@ -107,6 +107,9 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 
 - openFrameworks 0.12.0+
 - ofxGui
+
+## Tested Systems
+- Windows 11 / VS 2026 insiders / of_v0.12.1_vs_64_release 
 
 ## Use Cases
 
