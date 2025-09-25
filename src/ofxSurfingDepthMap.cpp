@@ -7,6 +7,7 @@ ofxSurfingDepthMap::ofxSurfingDepthMap() {
 
 //--------------------------------------------------------------
 ofxSurfingDepthMap::~ofxSurfingDepthMap() {
+	if (!bDoneExit) exit(); //force exit to save settings if not done manually
 }
 
 //--------------------------------------------------------------
@@ -24,6 +25,9 @@ void ofxSurfingDepthMap::setup(ofCamera * cam) {
 	setupParams();
 	setupFbo();
 	setupShader();
+
+	ofxSurfingDepthMapSerializers::loadSettings(params);
+	ofxSurfingDepthMapSerializers::loadSettings(paramsSettings);
 }
 
 //--------------------------------------------------------------
@@ -31,35 +35,35 @@ void ofxSurfingDepthMap::setupParams() {
 	params.setName("DepthMap");
 	params.add(enableDepthMap.set("Enable", true));
 
-	paramsTweaks.setName("FX Tweaks");
-	paramsTweaks.add(depthContrast.set("Contrast", 1.0, 0.1, 3.0));
-	paramsTweaks.add(depthBrightness.set("Brightness", 0.0, -0.5, 0.5));
-	paramsTweaks.add(depthGamma.set("Gamma", 1.0, 0.5, 2.5));
-	paramsTweaks.add(invertDepth.set("Invert", false));
-	paramsTweaks.add(vResetTweaks.set("Reset"));
-	params.add(paramsTweaks);
+	paramsDepthTone.setName("Depth Tone");
+	paramsDepthTone.add(depthContrast.set("Contrast", 1.0, 0.1, 3.0));
+	paramsDepthTone.add(depthBrightness.set("Brightness", 0.0, -0.5, 0.5));
+	paramsDepthTone.add(depthGamma.set("Gamma", 1.0, 0.5, 2.5));
+	paramsDepthTone.add(invertDepth.set("Invert", false));
+	paramsDepthTone.add(vResetTweaks.set("Reset"));
+	params.add(paramsDepthTone);
 
 	// Depth mode parameters
 	depthModeNames = { "Linear", "Logarithmic", "Focus Range" };
-	paramsDepthMode.setName("Mode");
+	paramsDepthMode.setName("Modes");
 	paramsDepthMode.add(depthMode.set("Depth Mode", 0, 0, 2));
-	paramsDepthMode.add(depthModeName.set("Mode Name", "-1"));
+	paramsDepthMode.add(depthModeName.set("Mode", "-1"));
 	paramsDepthMode.add(logCurvePower.set("Log Power", 1.0f, 0.05f, 10.0f));
 	paramsDepthMode.add(vResetMode.set("Reset"));
 	params.add(paramsDepthMode);
 
 	// Camera parameters
-	paramsCamera.setName("Camera Clips");
-	paramsCamera.add(useManualClipPlanes.set("Enable", true));
-	paramsCamera.add(manualNear.set("Near", 0.1f, 0.01f, 10.0f));
-	paramsCamera.add(manualFar.set("Far", 1500.0f, 10.0f, 4000.0f));
-	paramsCamera.add(vResetManual.set("Reset"));
-	params.add(paramsCamera);
+	paramsCameraClipping.setName("Camera Clipping");
+	paramsCameraClipping.add(useManualClipPlanes.set("Enable", true));
+	paramsCameraClipping.add(manualNear.set("Near", 0.1f, SURFING_NEAR_MIN, SURFING_NEAR_MAX));
+	paramsCameraClipping.add(manualFar.set("Far", 1500.0f, SURFING_FAR_MIN, SURFING_FAR_MAX));
+	paramsCameraClipping.add(vResetManual.set("Reset"));
+	params.add(paramsCameraClipping);
 
 	// Focus range parameters (only active when depthMode == 2)
 	paramsFocus.setName("Focus Range");
-	paramsFocus.add(focusNear.set("Near", 0.1f, 0.01f, 10000.0f));
-	paramsFocus.add(focusFar.set("Far", 500.0f, 10.0f, 10000.0f));
+	paramsFocus.add(focusNear.set("Near", 0.1f, SURFING_NEAR_MIN, SURFING_FAR_MAX));
+	paramsFocus.add(focusFar.set("Far", 500.0f, SURFING_FAR_MIN, SURFING_FAR_MAX));
 	paramsFocus.add(vAutoFocus.set("Auto Focus"));
 	paramsFocus.add(vResetFocus.set("Reset"));
 	params.add(paramsFocus);
@@ -68,25 +72,14 @@ void ofxSurfingDepthMap::setupParams() {
 
 	paramsExport.setName("Export PNG");
 	paramsExport.add(vChooseFolder.set("Set Folder"));
-	paramsExport.add(pathFolder.set("Path Folder", ""));
+	paramsExport.add(pathFolder.set("Folder", ""));
 	paramsExport.add(vOpenExportFolder.set("Open Folder"));
 	paramsExport.add(vExport.set("Export"));
 	params.add(paramsExport);
 
-	// Settings group available for saving/loading presets externally
 	paramsSettings.setName("ofxSurfingDepthMap");
 	paramsSettings.add(bGui);
-	paramsSettings.add(params);
-
-	// Listener for updating focus parameters when camera or manual values change
-	useManualCameraClipPlanesListener = useManualClipPlanes.newListener([this](bool & val) {
-	});
-
-	manualNearListener = manualNear.newListener([this](float & val) {
-	});
-
-	manualFarListener = manualFar.newListener([this](float & val) {
-	});
+	//paramsSettings.add(params);//TODO crashes..
 
 	depthModeListener = depthMode.newListener([this](int & val) {
 		updateDepthModeString();
@@ -257,9 +250,14 @@ void ofxSurfingDepthMap::draw(float x, float y, float w, float h) {
 	if (h <= 0) h = height;
 
 	// We rendered into the FBO. If depth effect was enabled,
-	// the geometry was already shaded to grayscale depth values.
+	// the geometry was already shaded to gray scale depth values.
 	// If disabled, the FBO contains the normal colored render.
 	fbo.draw(x, y, w, h);
+}
+
+//--------------------------------------------------------------
+void ofxSurfingDepthMap::drawCentered() {
+	draw(ofGetWidth() / 2 - width / 2, ofGetHeight() / 2 - height / 2, width, height);
 }
 
 //--------------------------------------------------------------
@@ -276,7 +274,8 @@ void ofxSurfingDepthMap::drawViewport() {
 		ofPushStyle();
 		ofNoFill();
 		ofSetLineWidth(2);
-		ofColor c = ofColor::yellow;
+		//ofColor c = ofColor::yellow;
+		ofColor c = ofColor(128);
 		ofSetColor(ofColor(c.r, c.g, c.b, 0.25 * c.a * Bounce()));
 		ofDrawRectangle(rectViewport);
 		ofPopStyle();
@@ -422,4 +421,12 @@ void ofxSurfingDepthMap::updateDepthModeString() {
 	} else {
 		depthModeName = "-1"; //error
 	}
+}
+
+// --------------------------------------------------------------
+void ofxSurfingDepthMap::exit() {
+	ofxSurfingDepthMapSerializers::saveSettings(params);
+	ofxSurfingDepthMapSerializers::saveSettings(paramsSettings);
+
+	bDoneExit = true;
 }

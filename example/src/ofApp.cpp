@@ -27,20 +27,21 @@ void ofApp::setup() {
 	//---
 
 	dm.setup(&camera);
-	//dm.setPathFolder("D:\\depth-maps\\"); // custom output folder
+
+	//---
 
 	setupGui();
 }
 
 //--------------------------------------------------------------
 void ofApp::setupGui() {
-	paramsCube.setName("3D Scene");
-	paramsCube.add(cubeSize.set("Size", 200, 50, 500));
-	paramsCube.add(cubeAnim.set("Anim", false));
-	paramsCube.add(vReset.set("Reset"));
+	paramsScene.setName("Scene");
+	paramsScene.add(cubeSize.set("Size", 200, 50, 500));
+	paramsScene.add(cubeAnim.set("Anim", false));
+	paramsScene.add(vReset.set("Reset"));
 
 	gui.setup("Example");
-	gui.add(paramsCube);
+	gui.add(paramsScene);
 
 	gui.add(dm.params);
 
@@ -62,7 +63,6 @@ void ofApp::drawScene() {
 	if (cubeAnim) {
 		ofTranslate(oscillation, oscillation * 0.5f, 0);
 		ofRotateYDeg(time * 20);
-		//ofRotateXDeg(time * 15);
 	}
 
 	ofFill();
@@ -125,11 +125,16 @@ void ofApp::draw() {
 	}
 	dm.end();
 
-	// Draw to fullscreen stretched
+	// Draw to full screen stretched
 	//dm.draw(0, 0, ofGetWidth(), ofGetHeight());
 
+	// Draw border rectangle
+	dm.drawViewport();
+
 	// Draw original size in the center
-	dm.draw(ofGetWidth() / 2 - dm.width / 2, ofGetHeight() / 2 - dm.height / 2, dm.width, dm.height);
+	dm.drawCentered();
+
+	//--
 
 	if (bGui) drawGui();
 }
@@ -154,4 +159,9 @@ void ofApp::keyPressed(int key) {
 		dm.doResetAll();
 		break;
 	}
+}
+
+//--------------------------------------------------------------
+void ofApp::exit() {
+	//dm.exit();//not mandatory bc auto called in addon destructor..
 }

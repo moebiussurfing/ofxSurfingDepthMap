@@ -13,13 +13,14 @@ public:
 	void drawGui();
 	void doResetScene();
 	void keyPressed(int key);
+	void exit();
 
 private:
 	ofEasyCam camera;
 
 	ofxPanel gui;
 
-	ofParameterGroup paramsCube;
+	ofParameterGroup paramsScene;
 	ofParameter<float> cubeSize;
 	ofParameter<bool> cubeAnim;
 
