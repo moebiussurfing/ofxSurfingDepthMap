@@ -43,7 +43,7 @@ void ofxSurfingDepthMap::setupParams() {
 	depthModeNames = { "Linear", "Logarithmic", "Focus Range" };
 	paramsDepthMode.setName("Mode");
 	paramsDepthMode.add(depthMode.set("Depth Mode", 0, 0, 2));
-	paramsDepthMode.add(depthModeName.set("-1"));
+	paramsDepthMode.add(depthModeName.set("Mode Name", "-1"));
 	paramsDepthMode.add(logCurvePower.set("Log Power", 1.0f, 0.05f, 10.0f));
 	paramsDepthMode.add(vResetMode.set("Reset"));
 	params.add(paramsDepthMode);
@@ -67,7 +67,7 @@ void ofxSurfingDepthMap::setupParams() {
 	params.add(vResetAll.set("Reset"));
 
 	paramsExport.setName("Export PNG");
-	paramsExport.add(vChooseFolder.set("Set Output Folder"));
+	paramsExport.add(vChooseFolder.set("Set Folder"));
 	paramsExport.add(pathFolder.set("Path Folder", ""));
 	paramsExport.add(vOpenExportFolder.set("Open Folder"));
 	paramsExport.add(vExport.set("Export"));
@@ -75,6 +75,7 @@ void ofxSurfingDepthMap::setupParams() {
 
 	// Settings group available for saving/loading presets externally
 	paramsSettings.setName("ofxSurfingDepthMap");
+	paramsSettings.add(bGui);
 	paramsSettings.add(params);
 
 	// Listener for updating focus parameters when camera or manual values change
@@ -270,13 +271,16 @@ void ofxSurfingDepthMap::drawViewport() {
 
 	fbo.draw(rectViewport.getX(), rectViewport.getY(), rectViewport.getWidth(), rectViewport.getHeight());
 
-	ofPushStyle();
-	ofNoFill();
-	ofSetLineWidth(2);
-	ofColor c = ofColor::yellow;
-	ofSetColor(ofColor(c.r, c.g, c.b, 0.25 * c.a * Bounce()));
-	ofDrawRectangle(rectViewport);
-	ofPopStyle();
+	// view rect
+	if (bGui) {
+		ofPushStyle();
+		ofNoFill();
+		ofSetLineWidth(2);
+		ofColor c = ofColor::yellow;
+		ofSetColor(ofColor(c.r, c.g, c.b, 0.25 * c.a * Bounce()));
+		ofDrawRectangle(rectViewport);
+		ofPopStyle();
+	}
 }
 
 //--------------------------------------------------------------

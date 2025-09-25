@@ -70,7 +70,7 @@ public:
 
 	ofParameterGroup paramsSettings;
 
-	ofParameter<bool> bGui { "DepthMap", true };
+	ofParameter<bool> bGui { "DepthMap", true };//useful for external ui management
 
 private:
 	void updateDepthModeString();
