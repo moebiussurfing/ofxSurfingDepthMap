@@ -66,7 +66,7 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 - **Near/Far**: Depth boundaries for high contrast zone  
 - **Auto Focus**: Automatically calculates optimal focus range based on current scene
 
-### FX Tweaks
+### Depth Tone
 - **Contrast**: Enhances depth separation (1.0 = neutral)
 - **Brightness**: Shifts depth map lighter/darker (0.0 = neutral)
 - **Gamma**: Adjusts response curve (1.0 = linear)
@@ -91,9 +91,10 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 
 - Output: 1024x1024 RGBA FBO (RGB channels contain grayscale depth)
 - Depth calculation: View-space Z distance with proper perspective correction  
-- File format: PNG with embedded depth information
-- Export image files to custom folders (ie: `D:/ComfyUI/input/depth-maps/`).
+- File format: PNG image with embedded depth information
+- Export to custom folder (ie: `D:/ComfyUI/input/depthmaps/`)
 - Shader requirements: OpenGL 3.3+ (shadersGL3 folder)
+- Persistent settings 
 
 ## Installation
 
