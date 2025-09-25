@@ -108,7 +108,8 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 - ofxGui
 
 ## Tested Systems
-- Windows 11 / VS 2026 insiders / of_v0.12.1_vs_64_release 
+- Windows 11 / VS 2026 Insiders / of_v0.12.1_vs_64_release 
+- macOS Tahoe 26.0 / Xcode 26.0 / of_v0.12.1_osx_release
 
 ## Use Cases
 
