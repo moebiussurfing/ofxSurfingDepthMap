@@ -1,6 +1,6 @@
 # ofxSurfingDepthMap
 
-*Depth-map shader based add-on. Developed for seamless integration with AI workflows and real-time 3D applications.*
+*Depth-map shader based add-on. Developed for seamless OF scenes integration with AI workflows and real-time 3D applications.*
 
 ![](Screenshot.png)
 
