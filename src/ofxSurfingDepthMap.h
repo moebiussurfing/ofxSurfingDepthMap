@@ -97,6 +97,7 @@ private:
 	ofEventListener vResetManualListener;
 	ofEventListener vResetFocusListener;
 
+	// SurfingFilesManager
 	ofEventListener vChooseFolderListener;
 	ofEventListener vExportListener;
 	ofEventListener vOpenExportFolderListener;

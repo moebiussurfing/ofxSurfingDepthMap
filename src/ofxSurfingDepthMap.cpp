@@ -79,7 +79,6 @@ void ofxSurfingDepthMap::setupParams() {
 
 	paramsSettings.setName("ofxSurfingDepthMap");
 	paramsSettings.add(bGui);
-	//paramsSettings.add(params);//TODO crashes..
 
 	depthModeListener = depthMode.newListener([this](int & val) {
 		updateDepthModeString();

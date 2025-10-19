@@ -17,7 +17,7 @@ public:
 	void exit();
 	void drawInteractionArea();
 
-	private:
+private:
 	ofEasyCam camera;
 
 	ofxPanel gui;
@@ -27,7 +27,7 @@ public:
 	ofParameter<bool> cubeAnim;
 
 	ofParameter<void> vReset;
-	ofEventListener vResetListener;
+	ofEventListener e_vReset;
 
 	float oscillation;
 	float time;

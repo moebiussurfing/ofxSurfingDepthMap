@@ -21,7 +21,7 @@ void ofApp::setup() {
 	ofEnableDepthTest();
 	ofSetCircleResolution(64);
 
-	vResetListener = vReset.newListener([this](const void * sender) {
+	e_vReset = vReset.newListener([this](const void * sender) {
 		doResetScene();
 	});
 
