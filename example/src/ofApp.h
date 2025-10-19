@@ -32,8 +32,6 @@ private:
 	float oscillation;
 	float time;
 
-	int width, height;
-
 	ofParameter<bool> bGui;
 	void setupGui();
 

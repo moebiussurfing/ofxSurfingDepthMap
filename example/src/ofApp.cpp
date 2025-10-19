@@ -5,22 +5,22 @@
 void ofApp::setup() {
 #if 0
 	// Move window to the left screen
-	width = 1920;
-	height = width * (9 / 16.f);
+	int width = 1920;
+	int height = width * (9 / 16.f);
 	ofSetWindowShape(width, height);
 	int pad = 50;
 	ofSetWindowPosition(-width - pad, pad);
 #endif
 
-	oscillation = 0.0f;
-	time = 0.0f;
-	bGui.set("Gui", true);
-
-	doResetScene();
-
 	ofEnableDepthTest();
 	ofSetCircleResolution(64);
 
+	//--
+
+	oscillation = 0.0f;
+	time = 0.0f;
+
+	doResetScene();
 	e_vReset = vReset.newListener([this](const void * sender) {
 		doResetScene();
 	});
@@ -36,6 +36,8 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::setupGui() {
+	bGui.set("Gui", true);
+
 	paramsScene.setName("Scene");
 	paramsScene.add(cubeSize.set("Size", 200, 50, 500));
 	paramsScene.add(cubeAnim.set("Anim", false));
@@ -44,6 +46,7 @@ void ofApp::setupGui() {
 	gui.setup("Example");
 	gui.add(paramsScene);
 
+	// addon parameters
 	gui.add(dm.params);
 
 	gui.minimizeAll();
@@ -77,6 +80,10 @@ void ofApp::draw() {
 	// Draw to full screen stretched
 	//dm.draw(0, 0, ofGetWidth(), ofGetHeight());
 
+	//--
+
+	// Debug
+
 	// Draw border rectangle
 	dm.drawViewport();
 
@@ -86,6 +93,8 @@ void ofApp::draw() {
 	drawInteractionArea();
 
 	//--
+
+	// UI
 
 	if (bGui) drawGui();
 }
