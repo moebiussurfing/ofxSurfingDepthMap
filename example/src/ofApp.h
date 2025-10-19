@@ -1,4 +1,4 @@
-//ofApp.h
+// file: src/ofApp.h
 #pragma once
 
 #include "ofMain.h"

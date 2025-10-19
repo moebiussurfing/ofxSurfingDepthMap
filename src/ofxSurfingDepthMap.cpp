@@ -1,4 +1,4 @@
-//ofxSurfingDepthMap.cpp
+// file: src/ofxSurfingDepthMap.cpp
 #include "ofxSurfingDepthMap.h"
 
 //--------------------------------------------------------------

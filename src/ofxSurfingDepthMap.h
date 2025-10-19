@@ -1,4 +1,4 @@
-//ofxSurfingDepthMap.h
+// file: src/ofxSurfingDepthMap.h
 #pragma once
 
 #include "ofMain.h"

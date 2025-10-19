@@ -1,4 +1,4 @@
-//ofApp.cpp
+// file: src/ofApp.cpp
 #include "ofApp.h"
 
 //--------------------------------------------------------------
@@ -183,7 +183,8 @@ void ofApp::drawInteractionArea() {
 
 	ofPushStyle();
 	ofSetLineWidth(3);
-	ofSetColor(255, 255, 0, 10);
+	const int a = 5;
+	ofSetColor(255, 255, 0, a);
 	ofNoFill();
 	glDepthMask(false);
 	ofDrawCircle(x, y, r);
