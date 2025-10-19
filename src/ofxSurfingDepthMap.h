@@ -68,9 +68,11 @@ public:
 
 	ofParameter<void> vResetAll;
 
+private:
 	int width, height;
 	ofRectangle rectViewport;
 
+public:
 	ofParameterGroup paramsExport;
 	ofParameter<string> pathFolder;
 	void setPathFolder(const std::string & path) { pathFolder = path; }

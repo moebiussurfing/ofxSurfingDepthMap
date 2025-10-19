@@ -5,7 +5,7 @@
 void ofApp::setup() {
 #if 0
 	// Move window to the left screen
-	width = 1280;
+	width = 1920;
 	height = width * (9 / 16.f);
 	ofSetWindowShape(width, height);
 	int pad = 50;
@@ -19,6 +19,7 @@ void ofApp::setup() {
 	doResetScene();
 
 	ofEnableDepthTest();
+	ofSetCircleResolution(64);
 
 	vResetListener = vReset.newListener([this](const void * sender) {
 		doResetScene();
@@ -54,6 +55,39 @@ void ofApp::update() {
 	oscillation = sin(time) * 50.0f;
 
 	dm.update();
+}
+
+//--------------------------------------------------------------
+void ofApp::draw() {
+	ofClear(24);
+
+	// Start recording into the addon's FBO. The addon will bind the depth shader
+	// only if enableDepthMap is true.
+	dm.begin();
+	{
+		// The app still controls when the camera begins/ends.
+		camera.begin();
+		{
+			drawScene();
+		}
+		camera.end();
+	}
+	dm.end();
+
+	// Draw to full screen stretched
+	//dm.draw(0, 0, ofGetWidth(), ofGetHeight());
+
+	// Draw border rectangle
+	dm.drawViewport();
+
+	// Draw original size in the center
+	dm.drawCentered();
+
+	drawInteractionArea();
+
+	//--
+
+	if (bGui) drawGui();
 }
 
 //--------------------------------------------------------------
@@ -109,37 +143,6 @@ void ofApp::doResetScene() {
 }
 
 //--------------------------------------------------------------
-void ofApp::draw() {
-	ofClear(24);
-
-	// Start recording into the addon's FBO. The addon will bind the depth shader
-	// only if enableDepthMap is true.
-	dm.begin();
-	{
-		// The app still controls when the camera begins/ends.
-		camera.begin();
-		{
-			drawScene();
-		}
-		camera.end();
-	}
-	dm.end();
-
-	// Draw to full screen stretched
-	//dm.draw(0, 0, ofGetWidth(), ofGetHeight());
-
-	// Draw border rectangle
-	dm.drawViewport();
-
-	// Draw original size in the center
-	dm.drawCentered();
-
-	//--
-
-	if (bGui) drawGui();
-}
-
-//--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 	switch (key) {
 	case ' ':
@@ -164,4 +167,26 @@ void ofApp::keyPressed(int key) {
 //--------------------------------------------------------------
 void ofApp::exit() {
 	//dm.exit();//not mandatory bc auto called in addon destructor..
+}
+
+//--------------------------------------------------------------
+void ofApp::windowResized(int w, int h) {
+	camera.setControlArea(ofGetWindowRect());
+}
+
+//--------------------------------------------------------------
+void ofApp::drawInteractionArea() {
+	ofRectangle vp = ofGetCurrentViewport();
+	float r = std::min<float>(vp.width, vp.height) * 0.5f;
+	float x = vp.width * 0.5f;
+	float y = vp.height * 0.5f;
+
+	ofPushStyle();
+	ofSetLineWidth(3);
+	ofSetColor(255, 255, 0, 10);
+	ofNoFill();
+	glDepthMask(false);
+	ofDrawCircle(x, y, r);
+	glDepthMask(true);
+	ofPopStyle();
 }

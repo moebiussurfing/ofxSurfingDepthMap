@@ -13,9 +13,11 @@ public:
 	void drawGui();
 	void doResetScene();
 	void keyPressed(int key);
+	void windowResized(int w, int h);
 	void exit();
+	void drawInteractionArea();
 
-private:
+	private:
 	ofEasyCam camera;
 
 	ofxPanel gui;
