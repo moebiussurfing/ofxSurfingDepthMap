@@ -60,6 +60,8 @@ void SurfingFilesManager::doExport() {
 
 	std::string savedFile = exportCallback(folder);
 
+	//--
+
 	if (!savedFile.empty()) {
 		ofLogNotice("SurfingFilesManager") << "Exported to: " << savedFile;
 
