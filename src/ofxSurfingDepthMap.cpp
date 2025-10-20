@@ -7,7 +7,7 @@ ofxSurfingDepthMap::ofxSurfingDepthMap() {
 
 //--------------------------------------------------------------
 ofxSurfingDepthMap::~ofxSurfingDepthMap() {
-	if (!bDoneExit) exit(); //force exit to save settings if not done manually
+	if (!bDoneExit) exit(); // force exit to save settings if not done manually
 }
 
 //--------------------------------------------------------------
@@ -23,6 +23,8 @@ void ofxSurfingDepthMap::setup(ofCamera * cam) {
 	rectViewport = ofRectangle(0, 0, width, height);
 
 	setupParams();
+	setupCallbacks();
+
 	setupFbo();
 	setupShader();
 
@@ -70,15 +72,31 @@ void ofxSurfingDepthMap::setupParams() {
 
 	params.add(vResetAll.set("Reset"));
 
-	paramsExport.setName("Export PNG");
-	paramsExport.add(vChooseFolder.set("Set Folder"));
-	paramsExport.add(pathFolder.set("Folder", ""));
-	paramsExport.add(vOpenExportFolder.set("Open Folder"));
-	paramsExport.add(vExport.set("Export"));
-	params.add(paramsExport);
+	// Exporter
+	//paramsExport.setName("Export PNG");
+	//paramsExport.add(vChooseFolder.set("Set Folder"));
+	//paramsExport.add(path_folder.set("Folder", ""));
+	//paramsExport.add(vOpenExportFolder.set("Open Folder"));
+	//paramsExport.add(vExport.set("Export"));
+	//params.add(paramsExport);
+
+	// Setup files manager
+	filesManager.setup();
+	params.add(filesManager.params);
 
 	paramsSettings.setName("ofxSurfingDepthMap");
 	paramsSettings.add(bGui);
+}
+
+//--------------------------------------------------------------
+void ofxSurfingDepthMap::setupCallbacks() {
+
+	// Inject export callback
+	//filesManager.setExportCallback([this](const std::string & folder) -> std::string {
+	//	return this->saveDepthMap(folder);
+	//});
+
+	//--
 
 	depthModeListener = depthMode.newListener([this](int & val) {
 		updateDepthModeString();
@@ -89,6 +107,8 @@ void ofxSurfingDepthMap::setupParams() {
 	vAutoFocusListener = vAutoFocus.newListener([this](const void * sender) {
 		doAutoFocus();
 	});
+
+	//--
 
 	// Resets
 
@@ -112,17 +132,21 @@ void ofxSurfingDepthMap::setupParams() {
 		doResetAll();
 	});
 
-	vChooseFolderListener = vChooseFolder.newListener([this](const void * sender) {
-		doChooseFolder();
-	});
+	//--
 
-	vOpenExportFolderListener = vOpenExportFolder.newListener([this](const void * sender) {
-		doOpenExportFolder();
-	});
+	// Exporting
 
-	vExportListener = vExport.newListener([this](const void * sender) {
-		save();
-	});
+	//vChooseFolderListener = vChooseFolder.newListener([this](const void * sender) {
+	//	doChooseFolder();
+	//});
+
+	//vOpenExportFolderListener = vOpenExportFolder.newListener([this](const void * sender) {
+	//	doOpenExportFolder();
+	//});
+
+	//vExportListener = vExport.newListener([this](const void * sender) {
+	//	save();
+	//});
 }
 
 //--------------------------------------------------------------
@@ -332,16 +356,20 @@ void ofxSurfingDepthMap::doResetAll() {
 
 // --------------------------------------------------------------
 void ofxSurfingDepthMap::save() {
+	path_folder = filesManager.getPathFolder();
+
+	//--
+
 	ofPixels pix;
 	fbo.readToPixels(pix);
 
 	// Build filename
 	std::string filename = "depthmap_" + ofToString(ofGetTimestampString()) + ".png";
 	std::string out;
-	if (pathFolder.get() == "")
+	if (path_folder.get() == "")
 		out = ofFilePath::join(ofToDataPath("", true), filename);
 	else
-		out = ofFilePath::join(pathFolder.get(), filename);
+		out = ofFilePath::join(path_folder.get(), filename);
 
 	// Save image
 	ofSaveImage(pix, out);
@@ -355,6 +383,7 @@ void ofxSurfingDepthMap::save() {
 	// Wrap path in quotes to handle spaces
 	std::string quotedPath = "\"" + path_ + "\"";
 
+	// Open the saved image using the default OS image viewer
 #ifdef TARGET_OSX
 	ofSystem("open " + quotedPath);
 #elif defined(TARGET_WIN32)
@@ -365,49 +394,49 @@ void ofxSurfingDepthMap::save() {
 #endif
 }
 
-//--------------------------------------------------------------
-void ofxSurfingDepthMap::doOpenExportFolder() {
-	std::string folderStr;
+////--------------------------------------------------------------
+//void ofxSurfingDepthMap::doOpenExportFolder() {
+//	std::string folderStr;
+//
+//	// Get folder path from parameter or default data folder
+//	if (path_folder.get() != "") {
+//		folderStr = path_folder.get();
+//	} else {
+//		folderStr = ofToDataPath("", true);
+//	}
+//
+//	// Use ofFile to ensure proper folder path
+//	ofFile folder(folderStr);
+//	if (!folder.isDirectory()) {
+//		folderStr = folder.getEnclosingDirectory(); // get parent if it's a file
+//	}
+//	folderStr = folder.getAbsolutePath(); // ensures absolute path with correct slashes
+//
+//	ofLogNotice("ofxSurfingDepthMap") << "doOpenExportFolder() " << folderStr;
+//
+//#ifdef TARGET_OSX
+//	std::string command = "open \"" + folderStr + "\"";
+//	system(command.c_str());
+//#elif defined(TARGET_LINUX)
+//	std::string command = "xdg-open \"" + folderStr + "\"";
+//	system(command.c_str());
+//#elif defined(_WIN32)
+//	// More reliable on Windows using system("start") instead of ShellExecute
+//	std::string command = "start \"\" \"" + folderStr + "\"";
+//	system(command.c_str());
+//#endif
+//}
 
-	// Get folder path from parameter or default data folder
-	if (pathFolder.get() != "") {
-		folderStr = pathFolder.get();
-	} else {
-		folderStr = ofToDataPath("", true);
-	}
-
-	// Use ofFile to ensure proper folder path
-	ofFile folder(folderStr);
-	if (!folder.isDirectory()) {
-		folderStr = folder.getEnclosingDirectory(); // get parent if it's a file
-	}
-	folderStr = folder.getAbsolutePath(); // ensures absolute path with correct slashes
-
-	ofLogNotice("ofxSurfingDepthMap") << "doOpenExportFolder() " << folderStr;
-
-#ifdef TARGET_OSX
-	std::string command = "open \"" + folderStr + "\"";
-	system(command.c_str());
-#elif defined(TARGET_LINUX)
-	std::string command = "xdg-open \"" + folderStr + "\"";
-	system(command.c_str());
-#elif defined(_WIN32)
-	// More reliable on Windows using system("start") instead of ShellExecute
-	std::string command = "start \"\" \"" + folderStr + "\"";
-	system(command.c_str());
-#endif
-}
-
-// --------------------------------------------------------------
-void ofxSurfingDepthMap::doChooseFolder() {
-	// Open system dialog to choose a folder
-	ofFileDialogResult result = ofSystemLoadDialog("Select output folder", true); // true = folder mode
-
-	if (result.bSuccess) {
-		pathFolder = result.getPath(); // Save absolute path
-		ofLogNotice("ofxSurfingDepthMap") << "Selected output folder: " << pathFolder.get();
-	}
-}
+//// --------------------------------------------------------------
+//void ofxSurfingDepthMap::doChooseFolder() {
+//	// Open system dialog to choose a folder
+//	ofFileDialogResult result = ofSystemLoadDialog("Select output folder", true); // true = folder mode
+//
+//	if (result.bSuccess) {
+//		path_folder = result.getPath(); // Save absolute path
+//		ofLogNotice("ofxSurfingDepthMap") << "Selected output folder: " << path_folder.get();
+//	}
+//}
 
 // --------------------------------------------------------------
 void ofxSurfingDepthMap::updateDepthModeString() {

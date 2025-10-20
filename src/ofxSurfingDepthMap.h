@@ -2,7 +2,10 @@
 #pragma once
 
 #include "ofMain.h"
+
 #include "ofxSurfingDepthMapSerializers.h"
+
+#include "SurfingFilesManager.h"
 
 #define SURFING_NEAR_MIN 0.01f
 #define SURFING_NEAR_MAX 10.0f
@@ -28,6 +31,7 @@ private:
 	void setupFbo();
 	void setupShader();
 	void setupParams();
+	void setupCallbacks();
 	void doAutoFocus();
 
 public:
@@ -73,12 +77,18 @@ private:
 	ofRectangle rectViewport;
 
 public:
-	ofParameterGroup paramsExport;
-	ofParameter<string> pathFolder;
-	void setPathFolder(const std::string & path) { pathFolder = path; }
-	ofParameter<void> vChooseFolder;
-	ofParameter<void> vExport;
-	ofParameter<void> vOpenExportFolder;
+	//ofParameterGroup paramsExport;
+	//ofParameter<std::string> pathFolder;
+
+	//void setPathFolder(const std::string & path) { pathFolder = path; }
+	//ofParameter<void> vChooseFolder;
+	//ofParameter<void> vExport;
+	//ofParameter<void> vOpenExportFolder;
+
+	//// SurfingFilesManager
+	//ofEventListener vChooseFolderListener;
+	//ofEventListener vExportListener;
+	//ofEventListener vOpenExportFolderListener;
 
 	ofParameterGroup paramsSettings; // Group available for session saving/loading
 
@@ -97,19 +107,19 @@ private:
 	ofEventListener vResetManualListener;
 	ofEventListener vResetFocusListener;
 
-	// SurfingFilesManager
-	ofEventListener vChooseFolderListener;
-	ofEventListener vExportListener;
-	ofEventListener vOpenExportFolderListener;
+private:
+	SurfingFilesManager filesManager;
+	ofParameter<std::string> path_folder;
 
 	void doResetTweaks();
 	void doResetMode();
 	void doResetManual();
 	void doResetFocus();
-	void doChooseFolder();
+
+	//void doChooseFolder();
 
 public:
-	void doOpenExportFolder();
+	//void doOpenExportFolder();
 
 	void doResetAll();
 
