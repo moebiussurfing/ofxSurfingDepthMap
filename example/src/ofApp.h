@@ -25,16 +25,13 @@ private:
 	ofParameterGroup paramsScene;
 	ofParameter<float> cubeSize;
 	ofParameter<bool> cubeAnim;
-
 	ofParameter<void> vReset;
 	ofEventListener e_vReset;
-
-	float oscillation;
-	float time;
-
 	ofParameter<bool> bGui;
 	void setupGui();
 
+	float oscillation;
+	float time;
 	void drawScene();
 
 	ofxSurfingDepthMap dm;
