@@ -77,19 +77,6 @@ private:
 	ofRectangle rectViewport;
 
 public:
-	//ofParameterGroup paramsExport;
-	//ofParameter<std::string> pathFolder;
-
-	//void setPathFolder(const std::string & path) { pathFolder = path; }
-	//ofParameter<void> vChooseFolder;
-	//ofParameter<void> vExport;
-	//ofParameter<void> vOpenExportFolder;
-
-	//// SurfingFilesManager
-	//ofEventListener vChooseFolderListener;
-	//ofEventListener vExportListener;
-	//ofEventListener vOpenExportFolderListener;
-
 	ofParameterGroup paramsSettings; // Group available for session saving/loading
 
 	ofParameter<bool> bGui { "DepthMap", true }; // Useful for external show/hide ui management

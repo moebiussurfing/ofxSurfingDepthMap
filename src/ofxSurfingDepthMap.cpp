@@ -72,14 +72,6 @@ void ofxSurfingDepthMap::setupParams() {
 
 	params.add(vResetAll.set("Reset"));
 
-	// Exporter
-	//paramsExport.setName("Export PNG");
-	//paramsExport.add(vChooseFolder.set("Set Folder"));
-	//paramsExport.add(path_folder.set("Folder", ""));
-	//paramsExport.add(vOpenExportFolder.set("Open Folder"));
-	//paramsExport.add(vExport.set("Export"));
-	//params.add(paramsExport);
-
 	// Setup files manager
 	filesManager.setup();
 	params.add(filesManager.params);
@@ -131,22 +123,6 @@ void ofxSurfingDepthMap::setupCallbacks() {
 	vResetAllListener = vResetAll.newListener([this](const void * sender) {
 		doResetAll();
 	});
-
-	//--
-
-	// Exporting
-
-	//vChooseFolderListener = vChooseFolder.newListener([this](const void * sender) {
-	//	doChooseFolder();
-	//});
-
-	//vOpenExportFolderListener = vOpenExportFolder.newListener([this](const void * sender) {
-	//	doOpenExportFolder();
-	//});
-
-	//vExportListener = vExport.newListener([this](const void * sender) {
-	//	save();
-	//});
 }
 
 //--------------------------------------------------------------
@@ -393,50 +369,6 @@ void ofxSurfingDepthMap::save() {
 	ofSystem("xdg-open " + quotedPath);
 #endif
 }
-
-////--------------------------------------------------------------
-//void ofxSurfingDepthMap::doOpenExportFolder() {
-//	std::string folderStr;
-//
-//	// Get folder path from parameter or default data folder
-//	if (path_folder.get() != "") {
-//		folderStr = path_folder.get();
-//	} else {
-//		folderStr = ofToDataPath("", true);
-//	}
-//
-//	// Use ofFile to ensure proper folder path
-//	ofFile folder(folderStr);
-//	if (!folder.isDirectory()) {
-//		folderStr = folder.getEnclosingDirectory(); // get parent if it's a file
-//	}
-//	folderStr = folder.getAbsolutePath(); // ensures absolute path with correct slashes
-//
-//	ofLogNotice("ofxSurfingDepthMap") << "doOpenExportFolder() " << folderStr;
-//
-//#ifdef TARGET_OSX
-//	std::string command = "open \"" + folderStr + "\"";
-//	system(command.c_str());
-//#elif defined(TARGET_LINUX)
-//	std::string command = "xdg-open \"" + folderStr + "\"";
-//	system(command.c_str());
-//#elif defined(_WIN32)
-//	// More reliable on Windows using system("start") instead of ShellExecute
-//	std::string command = "start \"\" \"" + folderStr + "\"";
-//	system(command.c_str());
-//#endif
-//}
-
-//// --------------------------------------------------------------
-//void ofxSurfingDepthMap::doChooseFolder() {
-//	// Open system dialog to choose a folder
-//	ofFileDialogResult result = ofSystemLoadDialog("Select output folder", true); // true = folder mode
-//
-//	if (result.bSuccess) {
-//		path_folder = result.getPath(); // Save absolute path
-//		ofLogNotice("ofxSurfingDepthMap") << "Selected output folder: " << path_folder.get();
-//	}
-//}
 
 // --------------------------------------------------------------
 void ofxSurfingDepthMap::updateDepthModeString() {
