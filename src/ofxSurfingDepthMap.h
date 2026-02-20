@@ -97,6 +97,7 @@ private:
 private:
 	SurfingFilesManager filesManager;
 	ofParameter<std::string> path_folder;
+	std::string saveDepthMap(const std::string & folder, bool openAfterSave);
 
 	void doResetTweaks();
 	void doResetMode();

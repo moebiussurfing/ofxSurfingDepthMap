@@ -50,7 +50,7 @@ void SurfingFilesManager::setupCallbacks() {
 //--------------------------------------------------------------
 void SurfingFilesManager::doExport() {
 	if (!exportCallback) {
-		ofLogError("SurfingFilesManager") << "No export callback set!";
+		ofLogError("SurfingFilesManager") << "doExport() No export callback set!";
 		return;
 	}
 

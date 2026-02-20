@@ -84,9 +84,9 @@ void ofxSurfingDepthMap::setupParams() {
 void ofxSurfingDepthMap::setupCallbacks() {
 
 	// Inject export callback
-	//filesManager.setExportCallback([this](const std::string & folder) -> std::string {
-	//	return this->saveDepthMap(folder);
-	//});
+	filesManager.setExportCallback([this](const std::string & folder) -> std::string {
+		return this->saveDepthMap(folder, false);
+	});
 
 	//--
 
@@ -333,41 +333,42 @@ void ofxSurfingDepthMap::doResetAll() {
 // --------------------------------------------------------------
 void ofxSurfingDepthMap::save() {
 	path_folder = filesManager.getPathFolder();
+	saveDepthMap(path_folder.get(), true);
+}
 
-	//--
-
+// --------------------------------------------------------------
+std::string ofxSurfingDepthMap::saveDepthMap(const std::string & folder, bool openAfterSave) {
 	ofPixels pix;
 	fbo.readToPixels(pix);
 
-	// Build filename
 	std::string filename = "depthmap_" + ofToString(ofGetTimestampString()) + ".png";
-	std::string out;
-	if (path_folder.get() == "")
-		out = ofFilePath::join(ofToDataPath("", true), filename);
-	else
-		out = ofFilePath::join(path_folder.get(), filename);
+	std::string out = folder.empty()
+		? ofFilePath::join(ofToDataPath("", true), filename)
+		: ofFilePath::join(folder, filename);
 
-	// Save image
-	ofSaveImage(pix, out);
+	if (!ofSaveImage(pix, out)) {
+		ofLogError("ofxSurfingDepthMap") << "Failed to save depth-map png image to " << out;
+		return "";
+	}
+
 	ofLogNotice("ofxSurfingDepthMap") << "Saved depth-map png image to " << out;
 
-	// Get absolute path
+	if (!openAfterSave) {
+		return out;
+	}
+
 	std::string path_ = ofFilePath::getAbsolutePath(out);
-
-	ofLogNotice("ofxSurfingDepthMap") << "Open saved image from " << path_;
-
-	// Wrap path in quotes to handle spaces
 	std::string quotedPath = "\"" + path_ + "\"";
 
-	// Open the saved image using the default OS image viewer
 #ifdef TARGET_OSX
 	ofSystem("open " + quotedPath);
 #elif defined(TARGET_WIN32)
-	// Windows start needs empty title before path
 	ofSystem("start \"\" " + quotedPath);
 #elif defined(TARGET_LINUX)
 	ofSystem("xdg-open " + quotedPath);
 #endif
+
+	return out;
 }
 
 // --------------------------------------------------------------
