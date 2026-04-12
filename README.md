@@ -119,9 +119,9 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 - **Analysis**: Visualize 3D scene depth distribution  
 - **Prototyping**: Quick depth visualization for 3D applications
 
-### ComfyUI Flux
+### ComfyUI Flux. DepthMap to render
 <img width="512" height="512" alt="depthmap_2026-02-20-15-59-14-645" src="https://github.com/user-attachments/assets/20f1f9d5-148b-4972-b45f-f965b873f98b" />
-<img width="512" height="512" alt="ComfyUI_00008_" src="https://github.com/user-attachments/assets/139de3af-bb80-4784-aa7b-3d3ad8c0cdc9" />
+<img width="512" height="512" alt="ComfyUI_00010_" src="https://github.com/user-attachments/assets/0f00207f-8d56-4fcf-837d-fcb1d467bde8" />
 <img width="512" height="925.957" alt="Flux2-Klein_00021_" src="https://github.com/user-attachments/assets/c6a2fa7d-6964-4b3a-99b2-12044310677d" />
 
 
