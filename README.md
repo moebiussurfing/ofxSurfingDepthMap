@@ -120,9 +120,9 @@ Concentrates contrast in a specific depth range, compressing everything else. Pe
 - **Prototyping**: Quick depth visualization for 3D applications
 
 ### ComfyUI Flux
-<img width="1024" height="1024" alt="ComfyUI_00008_" src="https://github.com/user-attachments/assets/139de3af-bb80-4784-aa7b-3d3ad8c0cdc9" />
-<img width="1024" height="1024" alt="depthmap_2026-02-20-15-59-14-645" src="https://github.com/user-attachments/assets/20f1f9d5-148b-4972-b45f-f965b873f98b" />
-<img width="752" height="1360" alt="Flux2-Klein_00021_" src="https://github.com/user-attachments/assets/c6a2fa7d-6964-4b3a-99b2-12044310677d" />
+<img width="512" height="512" alt="depthmap_2026-02-20-15-59-14-645" src="https://github.com/user-attachments/assets/20f1f9d5-148b-4972-b45f-f965b873f98b" />
+<img width="512" height="512" alt="ComfyUI_00008_" src="https://github.com/user-attachments/assets/139de3af-bb80-4784-aa7b-3d3ad8c0cdc9" />
+<img width="512" height="925.957" alt="Flux2-Klein_00021_" src="https://github.com/user-attachments/assets/c6a2fa7d-6964-4b3a-99b2-12044310677d" />
 
 
 ## TODO
